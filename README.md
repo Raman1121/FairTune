@@ -32,7 +32,7 @@ python train_fairness_optuna.py --model [model] --epochs [epochs] --batch-size [
      --tuning_method [tuning_method] --dataset [dataset] --sens_attribute [sens_attribute] \
      --objective_metric [objective_metric] --num_trials [num_trials] --disable_storage --disable_checkpointing
 ```
-The mask would be saved in the directory FairTune/<model>/<dataset>/<Optuna_Masks>/
+`The mask would be saved in the directory FairTune/<model>/<dataset>/<Optuna_Masks>/`
 
 You can use different types of metrics as objectives for the HPO search. Please check `parse_args.py` for more options.
 
@@ -43,7 +43,7 @@ python test_fairness_baseline.py --model [model] --epochs [epochs] --batch-size 
      --tuning_method [tuning_method] --dataset [dataset] --sens_attribute [sens_attribute] \
     --cal_equiodds --mask_path [mask_path]
 ```
-The results would be saved in a CSV file located at FairTune/<model>/<dataset>/
+`The results would be saved in a CSV file located at FairTune/<model>/<dataset>/`
 
 
 
