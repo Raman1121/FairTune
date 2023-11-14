@@ -27,7 +27,7 @@ Due to the data use agreements, we cannot directly share the download link. Plea
 
 ### Run HPO search for finding the best mask (Stage 1)
 ```python
-python train_fairness_optuna.py --model [model] --epochs [epochs] --batch-size [batch-size] \
+python search_mask.py --model [model] --epochs [epochs] --batch-size [batch-size] \
      --opt [opt] --lr [lr] --lr-scheduler [lr-scheduler] --lr-warmup-method [lr-warmup-method] --lr-warmup-epochs [lr-warmup-epochs] 
      --tuning_method [tuning_method] --dataset [dataset] --sens_attribute [sens_attribute] \
      --objective_metric [objective_metric] --num_trials [num_trials] --disable_storage --disable_checkpointing
@@ -38,7 +38,7 @@ You can use different types of metrics as objectives for the HPO search. Please 
 
 ### Fine-Tune on the downstream task using the searched mask (Stage 2)
 ```python
-python test_fairness_baseline.py --model [model] --epochs [epochs] --batch-size [batch-size] \
+python finetune_with_mask.py --model [model] --epochs [epochs] --batch-size [batch-size] \
      --opt [opt] --lr [lr] --lr-scheduler [lr-scheduler] --lr-warmup-method [lr-warmup-method] --lr-warmup-epochs [lr-warmup-epochs] 
      --tuning_method [tuning_method] --dataset [dataset] --sens_attribute [sens_attribute] \
     --cal_equiodds --mask_path [mask_path]
