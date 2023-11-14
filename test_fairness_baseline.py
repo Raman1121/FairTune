@@ -1472,4 +1472,7 @@ if __name__ == "__main__":
     current_wd = os.getcwd()
     args.fig_savepath = os.path.join(args.output_dir, "plots/")
 
+    args.train_fscl_classifier = False
+    args.train_fscl_encoder = False
+
     main(args)

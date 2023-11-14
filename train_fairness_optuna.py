@@ -213,6 +213,9 @@ def objective(trial):
     args = get_args_parser().parse_args()
     device = torch.device(args.device)
 
+    args.train_fscl_classifier = False
+    args.train_fscl_encoder = False
+
     if(args.dev_mode):
         args.disable_plotting = True
         args.disable_checkpointing = True
