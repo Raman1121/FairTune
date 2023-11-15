@@ -6,7 +6,6 @@ def get_args_parser(add_help=True):
         description="PyTorch Classification Training", add_help=add_help
     )
 
-    # parser.add_argument("--data-path", default="/disk/scratch2/raman/ALL_DATASETS/HAM10000_dataset/", type=str, help="dataset path")
     parser.add_argument(
         "--dataset",
         default=None,
@@ -28,12 +27,15 @@ def get_args_parser(add_help=True):
     )
     parser.add_argument(
         "--dataset_basepath",
-        default="/home/co-dutt1/rds/hpc-work/ALL_DATASETS/",
         required=False,
         type=str,
         help="Base path for all the datasets.",
     )
-    # parser.add_argument("--fig_savepath", required=True, type=str, help="Base path for saving figures.")
+    parser.add_argument(
+        "--compute_cw",
+        help="Compute and use class weights for imbalance dataset",
+        action="store_true",
+    )
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
     parser.add_argument(
         "--device",
@@ -65,7 +67,6 @@ def get_args_parser(add_help=True):
     )
     parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
     parser.add_argument("--lr", default=0.1, type=float, help="initial learning rate")
-    # parser.add_argument("--inner_lr", default=0.1, type=float, help="initial learning rate")
     parser.add_argument(
         "--lr_scaler",
         default=1,
@@ -315,7 +316,6 @@ def get_args_parser(add_help=True):
     parser.add_argument(
         "--exp_vector_path",
         type=str,
-        default="/home/co-dutt1/rds/hpc-work/Layer-Masking/Experiment_Vectors/",
     )
 
     # MASK GENERATION PARAMETERS

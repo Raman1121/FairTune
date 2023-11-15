@@ -263,11 +263,23 @@ def objective(trial):
     trainable_params, all_param = utils.check_tunable_params(model, True)
     trainable_percentage = 100 * trainable_params / all_param
 
-    # _row = [round(trainable_percentage, 3)]
-    # _temp_trainable_params_df.loc[len(_temp_trainable_params_df)] = _row
-    # _temp_trainable_params_df.to_csv('_temp_trainable_params_df.csv', index=False)
 
     model.to(device)
+
+    # OL3I and Papila are highly imbalanced datasets. 
+    # We use class weights to balance the loss function
+
+    if(args.compute_cw):
+        if(args.dataset == 'ol3i'):
+            weight = torch.tensor([0.04361966711306677, 0.9563803328869332])
+        elif(args.dataset == 'papila'):
+            weight = torch.tensor([0.20714285714285716, 0.7928571428571428])
+        else:
+            raise NotImplementedError("Class weights not calculated for this dataset")
+        weight = weight.to(device)
+        print("Using CW Loss with weights: ", weight)
+    else:
+        weight=None
 
     # Create the optimizer, criterion, lr_scheduler here
     criterion = nn.CrossEntropyLoss(

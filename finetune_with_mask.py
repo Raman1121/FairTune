@@ -199,38 +199,6 @@ def plot_acc(args, ACC_list, best_ACC_list, worst_ACC_list, is_train):
     for i in range(len(ALL_ACC)):
         ALL_ACC_DIFF.append(ALL_BEST_ACC[i] - ALL_WORST_ACC[i])
 
-    # if(is_train):
-    #     figname = args.dataset + '_' + args.tuning_method + '_' + args.sens_attribute + '_' + 'training.png'
-    #     label1 = 'Train ACC'
-    #     label2 = 'Train Best ACC'
-    #     label3 = 'Train Worst ACC'
-    #     title = 'Overall, Best and Worst Sub-group Training ACC'
-    # else:
-    #     figname = args.dataset + '_' + args.tuning_method + '_' + args.sens_attribute + '_' + 'validation.png'
-    #     label1 = 'Val ACC'
-    #     label2 = 'Val Best ACC'
-    #     label3 = 'Val Worst ACC'
-    #     title = 'Overall, Best and Worst Sub-group Validation ACC'
-
-    # Plot the validation ACC, best and worst ACC in the same figure as a line plot
-    # plt.figure(figsize=(12, 16))
-    # plt.plot(ALL_ACC, label=label1)
-    # plt.plot(ALL_BEST_ACC, label=label2)
-    # plt.plot(ALL_WORST_ACC, label=label3)
-    # plt.plot(ALL_ACC_DIFF, label='ACC Difference')
-    # plt.xlabel('Epochs')
-    # plt.ylabel('ACC')
-    # plt.title(title)
-    # plt.xticks(list(range(len(ALL_WORST_ACC))))
-    # plt.legend()
-    # plt.savefig(os.path.join(args.fig_savepath, figname))
-
-    # if(is_train):
-    #     print("Training ACC Plot saved at: ", os.path.join(args.fig_savepath, figname))
-    # else:
-    #     print("Validation ACC Plot saved at: ", os.path.join(args.fig_savepath, figname))
-
-    # plt.close()
 
     # Save the validation ACC, best and worst ACC as json_files
     if(is_train):
@@ -386,8 +354,20 @@ def main(args):
     if args.distributed and args.sync_bn:
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
+    if(args.compute_cw):
+        if(args.dataset == 'ol3i'):
+            weight = torch.tensor([0.04361966711306677, 0.9563803328869332])
+        elif(args.dataset == 'papila'):
+            weight = torch.tensor([0.20714285714285716, 0.7928571428571428])
+        weight = weight.to(device)
+        print("Using CW Loss with weights: ", weight)
+    else:
+        weight=None
+
+
     criterion = nn.CrossEntropyLoss(
-            label_smoothing=args.label_smoothing, reduction="none"
+            label_smoothing=args.label_smoothing, reduction="none",
+            weight=weight
         )
 
     ece_criterion = utils.ECELoss()
