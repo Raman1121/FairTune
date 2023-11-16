@@ -4,6 +4,10 @@
 
 Abstract: Training models with robust group fairness properties is crucial in ethically sensitive application areas such as medical diagnosis. Despite the growing body of work aiming to minimise demographic bias in AI, this problem remains challenging. A key reason for this challenge is the fairness generalisation gap: High-capacity deep learning models can fit all training data nearly perfectly, and thus also exhibit perfect fairness during training. In this case, bias emerges only during testing when generalisation performance differs across subgroups. This motivates us to take a bi-level optimisation perspective on fair learning: Optimising the learning strategy based on validation fairness. Specifically, we consider the highly effective workflow of adapting pre-trained models to downstream medical imaging tasks using parameter-efficient fine-tuning (PEFT) techniques. There is a trade-off between updating more parameters, enabling a better fit to the task of interest vs. fewer parameters, potentially reducing the generalisation gap. To manage this tradeoff, we propose *FairTune*, a framework to optimise the choice of PEFT parameters with respect to fairness. We demonstrate empirically that *FairTune* leads to improved fairness on a range of medical imaging datasets. 
 
+## Installation
+Python >= 3.8+ and Pytorch >=1.10 are required for running the code.  
+Main packages: [PyTorch](https://pytorch.org/get-started/locally/), [Optuna](https://optuna.readthedocs.io/en/stable/installation.html), [FairLearn](https://fairlearn.org/v0.9/quickstart.html)
+
 
 ## Dataset Preparation
 We follow the steps in [MEDFAIR](https://github.com/ys-zong/MEDFAIR/tree/main) for preparing the datasets. Please see [this page](https://github.com/ys-zong/MEDFAIR/tree/main#data-preprocessing).
@@ -11,9 +15,6 @@ Detailed instructions for preparing the datasets are given in Appendix.
 
 After preprocessing, specify the paths of the metadata and pickle files in `config.yaml`.
 
-## Installation
-Python >= 3.8+ and Pytorch >=1.10 are required for running the code.
-Main packages: [PyTorch](https://pytorch.org/get-started/locally/), [Optuna](https://optuna.readthedocs.io/en/stable/installation.html), [FairLearn](https://fairlearn.org/v0.9/quickstart.html)
 
 ### Dataset
 Due to the data use agreements, we cannot directly share the download link. Please register and download datasets using the links from the table below:
