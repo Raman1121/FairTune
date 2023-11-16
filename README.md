@@ -45,5 +45,7 @@ python finetune_with_mask.py --model [model] --epochs [epochs] --batch-size [bat
 ```
 `The results would be saved in a CSV file located at FairTune/<model>/<dataset>/`
 
+`Note: It is advisable to use a weighted loss when working with Papila and OL3I datasets because of high imbalance, hence, use the --compute_cw arguement.`
+
 
 
