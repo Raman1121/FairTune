@@ -13,6 +13,7 @@ After preprocessing, specify the paths of the metadata and pickle files in `conf
 
 ## Installation
 Python >= 3.8+ and Pytorch >=1.10 are required for running the code.
+Main packages: [PyTorch](https://pytorch.org/get-started/locally/), [Optuna](https://optuna.readthedocs.io/en/stable/installation.html), [FairLearn](https://fairlearn.org/v0.9/quickstart.html)
 
 ### Dataset
 Due to the data use agreements, we cannot directly share the download link. Please register and download datasets using the links from the table below:
