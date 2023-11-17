@@ -1,4 +1,4 @@
-# *FairTune*: Optmizing Parameter-Efficient Fine-Tuning for Medical Image Analysis
+# *FairTune*: Optimizing Parameter-Efficient Fine-Tuning for Medical Image Analysis
 
 ![Fairtune](fairtune_framework.png)  
 
@@ -11,7 +11,7 @@ Main packages: [PyTorch](https://pytorch.org/get-started/locally/), [Optuna](htt
 
 ## Dataset Preparation
 We follow the steps in [MEDFAIR](https://github.com/ys-zong/MEDFAIR/tree/main) for preparing the datasets. Please see [this page](https://github.com/ys-zong/MEDFAIR/tree/main#data-preprocessing).
-Detailed instructions for preparing the datasets are given in Appendix.
+Detailed instructions for preparing the datasets are given in the Appendix.
 
 After preprocessing, specify the paths of the metadata and pickle files in `config.yaml`.
 
@@ -50,7 +50,7 @@ python finetune_with_mask.py --model [model] --epochs [epochs] --batch-size [bat
 ```
 `The results would be saved in a CSV file located at FairTune/<model>/<dataset>/`
 
-`Note: It is advisable to use a weighted loss when working with Papila and OL3I datasets because of high imbalance, hence, use the --compute_cw arguement.`
+`Note: It is advisable to use a weighted loss when working with Papila and OL3I datasets because of high imbalance, hence, use the --compute_cw argument.`
 
 
 
