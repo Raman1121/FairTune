@@ -176,7 +176,7 @@ def train_one_epoch_fairness(
         elif args.sens_attribute == "skin_type":
             
 
-            assert args.skin_type = 'binary'
+            assert args.skin_type == 'binary'
 
             ####################################### ACCURACY #########################################
             acc1, res_type0, res_type1 = utils.accuracy_by_skin_type_binary(

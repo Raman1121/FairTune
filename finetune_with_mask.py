@@ -722,6 +722,9 @@ def main(args):
             assert args.use_metric == 'auc'
             assert args.cal_equiodds is not None
 
+            best_auc = max(test_auc_type0, test_auc_type1)
+            worst_auc = min(test_auc_type0, test_auc_type1)
+
             new_row2 = [args.tuning_method, round(trainable_percentage, 3), args.lr, test_auc, best_auc, worst_auc, round(abs(best_auc - worst_auc), 3), round(equiodds_diff, 3), round(equiodds_ratio, 3), round(dpd, 3), round(dpr, 3), mask_path]
 
         elif(args.sens_attribute == 'age'):
@@ -730,12 +733,18 @@ def main(args):
             assert args.use_metric == 'auc'
             assert args.cal_equiodds is not None
 
+            best_auc = max(test_auc_type0, test_auc_type1)
+            worst_auc = min(test_auc_type0, test_auc_type1)
+
             new_row2 = [args.tuning_method, round(trainable_percentage, 3), args.lr, test_auc, best_auc, worst_auc, round(abs(best_auc - worst_auc), 3), round(equiodds_diff, 3), round(equiodds_ratio, 3), round(dpd, 3), round(dpr, 3), mask_path]
         
         elif(args.sens_attribute == 'race'):
 
             assert args.use_metric == 'auc'
             assert args.cal_equiodds is not None
+
+            best_auc = max(test_auc_type0, test_auc_type1)
+            worst_auc = min(test_auc_type0, test_auc_type1)
 
             new_row2 = [args.tuning_method, round(trainable_percentage, 3), args.lr, test_auc, best_auc, worst_auc, round(abs(best_auc - worst_auc), 3), round(equiodds_diff, 3), round(equiodds_ratio, 3), round(dpd, 3), round(dpr, 3), mask_path]
 
@@ -745,8 +754,6 @@ def main(args):
             assert args.use_metric == 'auc'
             assert args.cal_equiodds is not None
 
-            best_acc = max(test_acc_type0, test_acc_type1, test_acc_type2, test_acc_type3)
-            worst_acc = min(test_acc_type0, test_acc_type1, test_acc_type2, test_acc_type3)
             best_auc = max(test_auc_type0, test_auc_type1, test_auc_type2, test_auc_type3)
             worst_auc = min(test_auc_type0, test_auc_type1, test_auc_type2, test_auc_type3)
 
