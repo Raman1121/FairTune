@@ -46,7 +46,7 @@ You can use different types of metrics as objectives for the HPO search. Please 
 python finetune_with_mask.py --model [model] --epochs [epochs] --batch-size [batch-size] \
      --opt [opt] --lr [lr] --lr-scheduler [lr-scheduler] --lr-warmup-method [lr-warmup-method] --lr-warmup-epochs [lr-warmup-epochs] 
      --tuning_method [tuning_method] --dataset [dataset] --sens_attribute [sens_attribute] \
-    --cal_equiodds --mask_path [mask_path]
+    --cal_equiodds --mask_path [mask_path] --cal_equiodds --use_metric auc
 ```
 `The results would be saved in a CSV file located at FairTune/<model>/<dataset>/`
 
