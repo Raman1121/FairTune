@@ -13,15 +13,15 @@ import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import presets
+from utilities import presets
 import torch
 import torch.utils.data
 import torchvision
-import transforms
-from utils import *
-from training_utils import *
+from utilities import transforms
+from utilities.utils import *
+from utilities.training_utils import *
 from parse_args import *
-from sampler import RASampler
+from utilities.sampler import RASampler
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torchvision.transforms.functional import InterpolationMode

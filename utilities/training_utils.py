@@ -16,16 +16,16 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import presets
+from utilities import presets
 import torch
 import torch.utils.data
 import torchvision
 import torchvision.transforms as T
-import transforms
-import utils
+from utilities import transforms
+from utilities import utils
 from data import HAM10000, fitzpatrick, papila, ol3i, oasis, chexpert, glaucoma
 from torch.utils.data.sampler import SubsetRandomSampler
-from sampler import RASampler
+from utilities.sampler import RASampler
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torchvision.transforms.functional import InterpolationMode
