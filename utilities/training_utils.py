@@ -87,9 +87,9 @@ def train_one_epoch(
                 model_ema.n_averaged.fill_(0)
 
         acc1, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
-        
+
         auc = utils.roc_auc_score_multiclass(output, target)
-        
+
         batch_size = image.shape[0]
         metric_logger.update(loss=loss.item(), lr=optimizer.param_groups[0]["lr"])
         metric_logger.update(
@@ -129,7 +129,6 @@ def train_one_epoch_fairness(
         image, target = image.to(device), target.to(device)
 
         with torch.cuda.amp.autocast(enabled=scaler is not None):
-
             output = model(image)
             tol_output += output.tolist()
             loss = torch.mean(criterion(output, target))
@@ -159,7 +158,6 @@ def train_one_epoch_fairness(
         # acc1, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
         # auc = utils.auc(output, target, pos_label=kwargs['pos_label'])
         if args.sens_attribute == "gender":
-
             ####################################### ACCURACY #########################################
             acc1, acc_male, acc_female = utils.accuracy_by_gender(
                 output, target, sens_attr, topk=(1, args.num_classes)
@@ -174,28 +172,24 @@ def train_one_epoch_fairness(
             )
 
         elif args.sens_attribute == "skin_type":
-            
-
-            assert args.skin_type == 'binary'
+            assert args.skin_type == "binary"
 
             ####################################### ACCURACY #########################################
             acc1, res_type0, res_type1 = utils.accuracy_by_skin_type_binary(
                 output, target, sens_attr, topk=(1,)
             )
-            
+
             acc1 = acc1[0]
             acc_type0 = res_type0[0]
             acc_type1 = res_type1[0]
-            
+
             ########################################## AUC ############################################
             auc, auc_type0, auc_type1 = utils.auc_by_skin_type_binary(
                 output, target, sens_attr
             )
 
         elif args.sens_attribute == "age":
-            
-
-            assert args.age_type == 'binary'
+            assert args.age_type == "binary"
 
             # Accuracy
             acc1, res_type0, res_type1 = utils.accuracy_by_age_binary(
@@ -209,8 +203,8 @@ def train_one_epoch_fairness(
             auc, auc_type0, auc_type1 = utils.auc_by_age_binary(
                 output, target, sens_attr, topk=(1,)
             )
-            
-        elif args.sens_attribute == 'race':
+
+        elif args.sens_attribute == "race":
             # Accuracy
             acc1, res_type0, res_type1 = utils.accuracy_by_race_binary(
                 output, target, sens_attr, topk=(1,)
@@ -224,13 +218,17 @@ def train_one_epoch_fairness(
                 output, target, sens_attr, topk=(1,)
             )
 
-        elif args.sens_attribute == 'age_sex':
-            assert args.dataset == 'chexpert'
+        elif args.sens_attribute == "age_sex":
+            assert args.dataset == "chexpert"
 
             # Accuracy
-            acc1, res_type0, res_type1, res_type2, res_type3 = utils.accuracy_by_age_sex(
-                output, target, sens_attr, topk=(1,)
-            )
+            (
+                acc1,
+                res_type0,
+                res_type1,
+                res_type2,
+                res_type3,
+            ) = utils.accuracy_by_age_sex(output, target, sens_attr, topk=(1,))
             acc1 = acc1[0]
             acc_type0 = res_type0[0]
             acc_type1 = res_type1[0]
@@ -241,7 +239,7 @@ def train_one_epoch_fairness(
             auc, auc_type0, auc_type1, auc_type2, auc_type3 = utils.auc_by_age_sex(
                 output, target, sens_attr, topk=(1,)
             )
-            
+
         else:
             raise NotImplementedError("Sens Attribute not implemented")
 
@@ -254,7 +252,6 @@ def train_one_epoch_fairness(
         metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
 
         if args.sens_attribute == "gender":
-
             ####################################### ACCURACY #########################################
             metric_logger.meters["acc1_male"].update(acc_male.item(), n=batch_size)
             metric_logger.meters["acc1_female"].update(acc_female.item(), n=batch_size)
@@ -276,10 +273,8 @@ def train_one_epoch_fairness(
             else:
                 metric_logger.meters["auc_female"].update(0.0, n=0)
 
-
         elif args.sens_attribute == "skin_type":
-            
-            assert args.skin_type == 'binary'
+            assert args.skin_type == "binary"
 
             ####################################### ACCURACY #########################################
             if auc is not np.nan:
@@ -291,7 +286,7 @@ def train_one_epoch_fairness(
             else:
                 metric_logger.meters["acc_type0"].update(0.0, n=0)
 
-            if acc_type1 is not np.nan: 
+            if acc_type1 is not np.nan:
                 metric_logger.meters["acc_type1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_type1"].update(0.0, n=0)
@@ -307,15 +302,13 @@ def train_one_epoch_fairness(
             else:
                 metric_logger.meters["acc_type0"].update(0.0, n=0)
 
-            if auc_type1 is not np.nan: 
+            if auc_type1 is not np.nan:
                 metric_logger.meters["auc_type1"].update(auc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["auc_type1"].update(0.0, n=0)
 
-
         elif args.sens_attribute == "age":
-
-            assert args.age_type == 'binary'
+            assert args.age_type == "binary"
 
             # Accuracy
             if acc_type0 is not np.nan:
@@ -323,7 +316,7 @@ def train_one_epoch_fairness(
             else:
                 metric_logger.meters["acc_Age0"].update(0.0, n=batch_size)
 
-            if acc_type1 is not np.nan: 
+            if acc_type1 is not np.nan:
                 metric_logger.meters["acc_Age1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Age1"].update(0.0, n=batch_size)
@@ -338,21 +331,20 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc_Age0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_Age0"].update(0.0, n=0)
-            
+
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_Age1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_Age1"].update(0.0, n=0)
-        
-        elif args.sens_attribute == 'race':
 
+        elif args.sens_attribute == "race":
             # Accuracy
             if acc_type0 is not np.nan:
                 metric_logger.meters["acc_Race0"].update(acc_type0.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Race0"].update(0.0, n=batch_size)
 
-            if acc_type1 is not np.nan: 
+            if acc_type1 is not np.nan:
                 metric_logger.meters["acc_Race1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Race1"].update(0.0, n=batch_size)
@@ -367,35 +359,41 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc_Race0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_Race0"].update(0.0, n=0)
-            
+
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_Race1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_Race1"].update(0.0, n=0)
 
-        elif args.sens_attribute == 'age_sex':
-
+        elif args.sens_attribute == "age_sex":
             # ACCURACY
             if acc_type0 is not np.nan:
-                metric_logger.meters["acc_AgeSex0"].update(acc_type0.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex0"].update(
+                    acc_type0.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex0"].update(0.0, n=0)
 
-            if acc_type1 is not np.nan: 
-                metric_logger.meters["acc_AgeSex1"].update(acc_type1.item(), n=batch_size)
+            if acc_type1 is not np.nan:
+                metric_logger.meters["acc_AgeSex1"].update(
+                    acc_type1.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex1"].update(0.0, n=0)
-            
+
             if acc_type2 is not np.nan:
-                metric_logger.meters["acc_AgeSex2"].update(acc_type2.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex2"].update(
+                    acc_type2.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex2"].update(0.0, n=0)
-            
+
             if acc_type3 is not np.nan:
-                metric_logger.meters["acc_AgeSex3"].update(acc_type3.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex3"].update(
+                    acc_type3.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex3"].update(0.0, n=0)
-
 
             # AUC
             if auc is not np.nan:
@@ -407,64 +405,101 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc_AgeSex0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex0"].update(0.0, n=0)
-            
+
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_AgeSex1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex1"].update(0.0, n=0)
-            
+
             if auc_type2 is not np.nan:
                 metric_logger.meters["auc_AgeSex2"].update(auc_type2, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex2"].update(0.0, n=0)
-            
+
             if auc_type3 is not np.nan:
                 metric_logger.meters["auc_AgeSex3"].update(auc_type3, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex3"].update(0.0, n=0)
-            
 
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
 
+        if args.sens_attribute == "gender":
+            best_acc_avg = max(
+                metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg
+            )
 
-        if(args.sens_attribute == 'gender'):
+        elif args.sens_attribute == "skin_type":
+            assert args.skin_type == "binary"
 
-            best_acc_avg = max(metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg)
-            worst_acc_avg = min(metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg)
-            best_auc_avg = max(metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg)
-            worst_auc_avg = min(metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg)
+            best_acc_avg = max(
+                metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg
+            )
 
-        elif(args.sens_attribute == 'skin_type'):
+        elif args.sens_attribute == "age":
+            assert args.skin_type == "binary"
 
-            assert args.skin_type == 'binary'
+            best_acc_avg = max(
+                metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg
+            )
 
-            best_acc_avg = max(metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg)
-            best_auc_avg = max(metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg)
-        
-        elif(args.sens_attribute == 'age'):
+        elif args.sens_attribute == "race":
+            best_acc_avg = max(
+                metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg
+            )
 
-            assert args.skin_type == 'binary'
-
-            best_acc_avg = max(metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg)
-            best_auc_avg = max(metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg)
-        
-        elif(args.sens_attribute == 'race'):
-
-            best_acc_avg = max(metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg)
-            best_auc_avg = max(metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg)
-
-        elif(args.sens_attribute == 'age_sex'):
-
-            best_acc_avg = max(metric_logger.acc_AgeSex0.global_avg, metric_logger.acc_AgeSex1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_AgeSex0.global_avg, metric_logger.acc_AgeSex1.global_avg)
-            best_auc_avg = max(metric_logger.auc_AgeSex0.global_avg, metric_logger.auc_AgeSex1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_AgeSex0.global_avg, metric_logger.auc_AgeSex1.global_avg)
+        elif args.sens_attribute == "age_sex":
+            best_acc_avg = max(
+                metric_logger.acc_AgeSex0.global_avg,
+                metric_logger.acc_AgeSex1.global_avg,
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_AgeSex0.global_avg,
+                metric_logger.acc_AgeSex1.global_avg,
+            )
+            best_auc_avg = max(
+                metric_logger.auc_AgeSex0.global_avg,
+                metric_logger.auc_AgeSex1.global_avg,
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_AgeSex0.global_avg,
+                metric_logger.auc_AgeSex1.global_avg,
+            )
 
         acc_avg = metric_logger.acc1.global_avg
         auc_avg = metric_logger.auc.global_avg
@@ -497,7 +532,6 @@ def train_one_epoch_fairness_FSCL(
     #     metric_logger.log_every(data_loader, args.print_freq, header)
     # ):
     for i, (image, target, sens_attr) in enumerate(data_loader):
-
         start_time = time.time()
 
         images = torch.cat([image[0], image[1]], dim=0)
@@ -505,22 +539,22 @@ def train_one_epoch_fairness_FSCL(
 
         bsz = target.shape[0]
 
-        if(args.sens_attribute == 'gender'):
+        if args.sens_attribute == "gender":
             # Convert the list containing 'M' and 'F' into 0s and 1s
             # M: 0, F: 1
 
-            sens_attr = [0 if x == 'M' else 1 for x in sens_attr]
+            sens_attr = [0 if x == "M" else 1 for x in sens_attr]
             sens_attr = torch.tensor(sens_attr)
-        
 
         with torch.cuda.amp.autocast(enabled=scaler is not None):
-
             features = model(images)
             f1, f2 = torch.split(features, [bsz, bsz], dim=0)
             features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1)
 
-            loss = criterion(features, target, sens_attr, args.group_norm, args.method, epoch)   
-            print("Training Loss {}".format(round(loss.item(), 3)))         
+            loss = criterion(
+                features, target, sens_attr, args.group_norm, args.method, epoch
+            )
+            print("Training Loss {}".format(round(loss.item(), 3)))
             losses.append(loss.item())
 
         optimizer.zero_grad()
@@ -544,9 +578,9 @@ def train_one_epoch_fairness_FSCL(
                 # Reset ema buffer to keep copying weights during warmup period
                 model_ema.n_averaged.fill_(0)
 
-        #metric_logger.update(loss=loss.item(), lr=optimizer.param_groups[0]["lr"])
-    
-    avg_loss = sum(losses) / len(losses) 
+        # metric_logger.update(loss=loss.item(), lr=optimizer.param_groups[0]["lr"])
+
+    avg_loss = sum(losses) / len(losses)
 
     return avg_loss
 
@@ -570,7 +604,7 @@ def train_one_epoch_fairness_FSCL_classifier(
     metric_logger.add_meter("lr", utils.SmoothedValue(window_size=1, fmt="{value}"))
     metric_logger.add_meter("img/s", utils.SmoothedValue(window_size=10, fmt="{value}"))
 
-    #Freeze the encoder and train only the classifier
+    # Freeze the encoder and train only the classifier
     model.eval()
     classifier.train()
 
@@ -580,17 +614,15 @@ def train_one_epoch_fairness_FSCL_classifier(
     ):
         start_time = time.time()
 
-        #images = torch.cat([image[0], image[1]], dim=0)
+        # images = torch.cat([image[0], image[1]], dim=0)
         image, target = image.to(device), target.to(device)
 
         bsz = target.shape[0]
-        
 
         with torch.cuda.amp.autocast(enabled=scaler is not None):
-            
             with torch.no_grad():
                 features = model.encoder(image)
-            
+
             output = classifier(features.detach())
             loss = torch.mean(criterion(output, target))
 
@@ -620,7 +652,6 @@ def train_one_epoch_fairness_FSCL_classifier(
         # acc1, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
         # auc = utils.auc(output, target, pos_label=kwargs['pos_label'])
         if args.sens_attribute == "gender":
-
             ####################################### ACCURACY #########################################
             acc1, acc_male, acc_female = utils.accuracy_by_gender(
                 output, target, sens_attr, topk=(1, args.num_classes)
@@ -635,13 +666,24 @@ def train_one_epoch_fairness_FSCL_classifier(
             )
 
         elif args.sens_attribute == "skin_type":
-            
-            if(args.skin_type == 'multi'):
+            if args.skin_type == "multi":
                 ####################################### ACCURACY #########################################
-                acc1, res_type0, res_type1, res_type2, res_type3, res_type4, res_type5 = utils.accuracy_by_skin_type(
-                    output, target, sens_attr, topk=(1,), num_skin_types=args.num_skin_types
+                (
+                    acc1,
+                    res_type0,
+                    res_type1,
+                    res_type2,
+                    res_type3,
+                    res_type4,
+                    res_type5,
+                ) = utils.accuracy_by_skin_type(
+                    output,
+                    target,
+                    sens_attr,
+                    topk=(1,),
+                    num_skin_types=args.num_skin_types,
                 )
-                
+
                 acc1 = acc1[0]
                 acc_type0 = res_type0[0]
                 acc_type1 = res_type1[0]
@@ -651,31 +693,43 @@ def train_one_epoch_fairness_FSCL_classifier(
                 acc_type5 = res_type5[0]
 
                 ########################################## AUC ############################################
-                auc, auc_type0, auc_type1, auc_type2, auc_type3, auc_type4, auc_type5 = utils.auc_by_skin_type(
+                (
+                    auc,
+                    auc_type0,
+                    auc_type1,
+                    auc_type2,
+                    auc_type3,
+                    auc_type4,
+                    auc_type5,
+                ) = utils.auc_by_skin_type(
                     output, target, sens_attr, num_skin_types=args.num_skin_types
                 )
-            elif(args.skin_type == 'binary'):
+            elif args.skin_type == "binary":
                 ####################################### ACCURACY #########################################
                 acc1, res_type0, res_type1 = utils.accuracy_by_skin_type_binary(
                     output, target, sens_attr, topk=(1,)
                 )
-                
+
                 acc1 = acc1[0]
                 acc_type0 = res_type0[0]
                 acc_type1 = res_type1[0]
-                
+
                 ########################################## AUC ############################################
                 auc, auc_type0, auc_type1 = utils.auc_by_skin_type_binary(
                     output, target, sens_attr
                 )
 
         elif args.sens_attribute == "age":
-            if(args.age_type == 'multi'):
-
+            if args.age_type == "multi":
                 ####################################### ACCURACY #########################################
-                acc1, res_type0, res_type1, res_type2, res_type3, res_type4 = utils.accuracy_by_age(
-                    output, target, sens_attr, topk=(1,)
-                )
+                (
+                    acc1,
+                    res_type0,
+                    res_type1,
+                    res_type2,
+                    res_type3,
+                    res_type4,
+                ) = utils.accuracy_by_age(output, target, sens_attr, topk=(1,))
                 acc1 = acc1[0]
                 acc_type0 = res_type0[0]
                 acc_type1 = res_type1[0]
@@ -684,12 +738,16 @@ def train_one_epoch_fairness_FSCL_classifier(
                 acc_type4 = res_type4[0]
 
                 ####################################### AUC #########################################
-                auc, auc_type0, auc_type1, auc_type2, auc_type3, auc_type4 = utils.auc_by_age(
-                    output, target, sens_attr, topk=(1,)
-                )
+                (
+                    auc,
+                    auc_type0,
+                    auc_type1,
+                    auc_type2,
+                    auc_type3,
+                    auc_type4,
+                ) = utils.auc_by_age(output, target, sens_attr, topk=(1,))
 
-            elif(args.age_type == 'binary'):
-
+            elif args.age_type == "binary":
                 # Accuracy
                 acc1, res_type0, res_type1 = utils.accuracy_by_age_binary(
                     output, target, sens_attr, topk=(1,)
@@ -705,8 +763,8 @@ def train_one_epoch_fairness_FSCL_classifier(
 
             else:
                 raise NotImplementedError("Age type not implemented")
-            
-        elif args.sens_attribute == 'race':
+
+        elif args.sens_attribute == "race":
             # Accuracy
             acc1, res_type0, res_type1 = utils.accuracy_by_race_binary(
                 output, target, sens_attr, topk=(1,)
@@ -719,14 +777,18 @@ def train_one_epoch_fairness_FSCL_classifier(
             auc, auc_type0, auc_type1 = utils.auc_by_race_binary(
                 output, target, sens_attr, topk=(1,)
             )
-        
-        elif args.sens_attribute == 'age_sex':
-            assert args.dataset == 'chexpert'
+
+        elif args.sens_attribute == "age_sex":
+            assert args.dataset == "chexpert"
 
             # Accuracy
-            acc1, res_type0, res_type1, res_type2, res_type3 = utils.accuracy_by_age_sex(
-                output, target, sens_attr, topk=(1,)
-            )
+            (
+                acc1,
+                res_type0,
+                res_type1,
+                res_type2,
+                res_type3,
+            ) = utils.accuracy_by_age_sex(output, target, sens_attr, topk=(1,))
             acc1 = acc1[0]
             acc_type0 = res_type0[0]
             acc_type1 = res_type1[0]
@@ -737,7 +799,7 @@ def train_one_epoch_fairness_FSCL_classifier(
             auc, auc_type0, auc_type1, auc_type2, auc_type3 = utils.auc_by_age_sex(
                 output, target, sens_attr, topk=(1,)
             )
-            
+
         else:
             raise NotImplementedError("Sens Attribute not implemented")
 
@@ -750,12 +812,11 @@ def train_one_epoch_fairness_FSCL_classifier(
         metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
 
         if args.sens_attribute == "gender":
-            
-            # ACCURACY 
+            # ACCURACY
             metric_logger.meters["acc1_male"].update(acc_male.item(), n=batch_size)
             metric_logger.meters["acc1_female"].update(acc_female.item(), n=batch_size)
 
-            # AUC 
+            # AUC
 
             if auc is not np.nan:
                 metric_logger.meters["auc"].update(auc, n=batch_size)
@@ -772,11 +833,9 @@ def train_one_epoch_fairness_FSCL_classifier(
             else:
                 metric_logger.meters["auc_female"].update(0.0, n=0)
 
-
         elif args.sens_attribute == "skin_type":
-            
-            assert args.skin_type == 'binary'
-            
+            assert args.skin_type == "binary"
+
             # Accuracy
 
             if auc is not np.nan:
@@ -788,7 +847,7 @@ def train_one_epoch_fairness_FSCL_classifier(
             else:
                 metric_logger.meters["acc_type0"].update(0.0, n=0)
 
-            if acc_type1 is not np.nan: 
+            if acc_type1 is not np.nan:
                 metric_logger.meters["acc_type1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_type1"].update(0.0, n=0)
@@ -804,15 +863,13 @@ def train_one_epoch_fairness_FSCL_classifier(
             else:
                 metric_logger.meters["acc_type0"].update(0.0, n=0)
 
-            if auc_type1 is not np.nan: 
+            if auc_type1 is not np.nan:
                 metric_logger.meters["auc_type1"].update(auc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["auc_type1"].update(0.0, n=0)
 
-
         elif args.sens_attribute == "age":
-            
-            assert args.age_type == 'binary'
+            assert args.age_type == "binary"
 
             # Accuracy
             if acc_type0 is not np.nan:
@@ -820,7 +877,7 @@ def train_one_epoch_fairness_FSCL_classifier(
             else:
                 metric_logger.meters["acc_Age0"].update(0.0, n=batch_size)
 
-            if acc_type1 is not np.nan: 
+            if acc_type1 is not np.nan:
                 metric_logger.meters["acc_Age1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Age1"].update(0.0, n=batch_size)
@@ -835,22 +892,20 @@ def train_one_epoch_fairness_FSCL_classifier(
                 metric_logger.meters["auc_Age0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_Age0"].update(0.0, n=0)
-            
+
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_Age1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_Age1"].update(0.0, n=0)
 
-        
-        elif args.sens_attribute == 'race':
-
+        elif args.sens_attribute == "race":
             # Accuracy
             if acc_type0 is not np.nan:
                 metric_logger.meters["acc_Race0"].update(acc_type0.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Race0"].update(0.0, n=batch_size)
 
-            if acc_type1 is not np.nan: 
+            if acc_type1 is not np.nan:
                 metric_logger.meters["acc_Race1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Race1"].update(0.0, n=batch_size)
@@ -865,35 +920,41 @@ def train_one_epoch_fairness_FSCL_classifier(
                 metric_logger.meters["auc_Race0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_Race0"].update(0.0, n=0)
-            
+
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_Race1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_Race1"].update(0.0, n=0)
 
-        elif args.sens_attribute == 'age_sex':
-
+        elif args.sens_attribute == "age_sex":
             # ACCURACY
             if acc_type0 is not np.nan:
-                metric_logger.meters["acc_AgeSex0"].update(acc_type0.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex0"].update(
+                    acc_type0.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex0"].update(0.0, n=0)
 
-            if acc_type1 is not np.nan: 
-                metric_logger.meters["acc_AgeSex1"].update(acc_type1.item(), n=batch_size)
+            if acc_type1 is not np.nan:
+                metric_logger.meters["acc_AgeSex1"].update(
+                    acc_type1.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex1"].update(0.0, n=0)
-            
+
             if acc_type2 is not np.nan:
-                metric_logger.meters["acc_AgeSex2"].update(acc_type2.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex2"].update(
+                    acc_type2.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex2"].update(0.0, n=0)
-            
+
             if acc_type3 is not np.nan:
-                metric_logger.meters["acc_AgeSex3"].update(acc_type3.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex3"].update(
+                    acc_type3.item(), n=batch_size
+                )
             else:
                 metric_logger.meters["acc_AgeSex3"].update(0.0, n=0)
-
 
             # AUC
             if auc is not np.nan:
@@ -905,17 +966,17 @@ def train_one_epoch_fairness_FSCL_classifier(
                 metric_logger.meters["auc_AgeSex0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex0"].update(0.0, n=0)
-            
+
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_AgeSex1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex1"].update(0.0, n=0)
-            
+
             if auc_type2 is not np.nan:
                 metric_logger.meters["auc_AgeSex2"].update(auc_type2, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex2"].update(0.0, n=0)
-            
+
             if auc_type3 is not np.nan:
                 metric_logger.meters["auc_AgeSex3"].update(auc_type3, n=batch_size)
             else:
@@ -923,47 +984,85 @@ def train_one_epoch_fairness_FSCL_classifier(
 
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
 
+        if args.sens_attribute == "gender":
+            best_acc_avg = max(
+                metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg
+            )
 
-        if(args.sens_attribute == 'gender'):
-            best_acc_avg = max(metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg)
-            worst_acc_avg = min(metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg)
-            best_auc_avg = max(metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg)
-            worst_auc_avg = min(metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg)
+        elif args.sens_attribute == "skin_type":
+            best_acc_avg = max(
+                metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg
+            )
 
-        elif(args.sens_attribute == 'skin_type'):
-            
-            best_acc_avg = max(metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg)
-            best_auc_avg = max(metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg)
-            
-        
-        elif(args.sens_attribute == 'age'):
-            
-            best_acc_avg = max(metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg)
-            best_auc_avg = max(metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg)
-        
-        
-        elif(args.sens_attribute == 'race'):
+        elif args.sens_attribute == "age":
+            best_acc_avg = max(
+                metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg
+            )
 
-            best_acc_avg = max(metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg)
-            best_auc_avg = max(metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg)
+        elif args.sens_attribute == "race":
+            best_acc_avg = max(
+                metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg
+            )
+            best_auc_avg = max(
+                metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg
+            )
 
-        elif(args.sens_attribute == 'age_sex'):
+        elif args.sens_attribute == "age_sex":
+            best_acc_avg = max(
+                metric_logger.acc_AgeSex0.global_avg,
+                metric_logger.acc_AgeSex1.global_avg,
+            )
+            worst_acc_avg = min(
+                metric_logger.acc_AgeSex0.global_avg,
+                metric_logger.acc_AgeSex1.global_avg,
+            )
+            best_auc_avg = max(
+                metric_logger.auc_AgeSex0.global_avg,
+                metric_logger.auc_AgeSex1.global_avg,
+            )
+            worst_auc_avg = min(
+                metric_logger.auc_AgeSex0.global_avg,
+                metric_logger.auc_AgeSex1.global_avg,
+            )
 
-            best_acc_avg = max(metric_logger.acc_AgeSex0.global_avg, metric_logger.acc_AgeSex1.global_avg)
-            worst_acc_avg = min(metric_logger.acc_AgeSex0.global_avg, metric_logger.acc_AgeSex1.global_avg)
-            best_auc_avg = max(metric_logger.auc_AgeSex0.global_avg, metric_logger.auc_AgeSex1.global_avg)
-            worst_auc_avg = min(metric_logger.auc_AgeSex0.global_avg, metric_logger.auc_AgeSex1.global_avg)
-            
         acc_avg = metric_logger.acc1.global_avg
         auc_avg = metric_logger.auc.global_avg
 
     return acc_avg, best_acc_avg, worst_acc_avg, auc_avg, best_auc_avg, worst_auc_avg
+
 
 def get_attn_params(model):
     attn_params = []
@@ -979,13 +1078,13 @@ def get_attn_params(model):
 
 def get_fast_params(model, args):
     fast_params = []
-    param_names= []
+    param_names = []
 
     # Get fast parameters from each module
     if args.tuning_method == "tune_attention_blocks_random":
         for name, module in model.named_modules():
             if "fw" in module.__class__.__name__:
-                if("attn" in name):
+                if "attn" in name:
                     for n, param in module.named_parameters():
                         fast_params.append(param)
                         param_names.append(n)
@@ -1006,7 +1105,6 @@ def get_fast_params(model, args):
                     param_names.append(n)
 
     return fast_params, param_names
-
 
 
 def check_trainability(params):
@@ -1202,7 +1300,7 @@ def evaluate(
             ece_loss = ece_criterion(output, target)
 
             acc1, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
-            #auc = utils.auc(output, target, pos_label=kwargs['pos_label'])
+            # auc = utils.auc(output, target, pos_label=kwargs['pos_label'])
             auc = utils.roc_auc_score_multiclass(output, target)
             # auc_dict = utils.roc_auc_score_multiclass(output, target)
             # auc = sum(auc_dict.keys()) / len(auc_dict)
@@ -1285,7 +1383,7 @@ def evaluate_fairness_gender(
             target = target.to(device, non_blocking=True)
             # sens_attr = sens_attr.to(device, non_blocking=True)
 
-            if(args.fscl):
+            if args.fscl:
                 output_from_encoder = model.encoder(image)
                 print("Output from encoder: ", output_from_encoder.shape)
                 output = classifier(output_from_encoder)
@@ -1335,7 +1433,9 @@ def evaluate_fairness_gender(
             acc1_orig, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
 
             # AUC
-            auc, auc_male, auc_female = utils.auc_by_gender(output, target, sens_attr, topk=(1, args.num_classes))
+            auc, auc_male, auc_female = utils.auc_by_gender(
+                output, target, sens_attr, topk=(1, args.num_classes)
+            )
 
             # Equalized Odds and Equalized Opportunity
             # equiopp_0, equiopp_1 = utils.cal_eqopp(pred_probs, target, sens_attr, threshold=0.5)
@@ -1346,7 +1446,6 @@ def evaluate_fairness_gender(
             # Demographic Parity Difference and Ratio
             dpd = utils.dpd(preds, target, sens_attr)
             dpr = utils.dpr(preds, target, sens_attr)
-
 
             batch_size = image.shape[0]
             metric_logger.update(loss=torch.mean(loss).item())
@@ -1368,7 +1467,9 @@ def evaluate_fairness_gender(
             if equiodd_diff is not np.nan:
                 metric_logger.meters["equiodd_diff"].update(equiodd_diff, n=batch_size)
             if equiodd_ratio is not np.nan:
-                metric_logger.meters["equiodd_ratio"].update(equiodd_ratio, n=batch_size)
+                metric_logger.meters["equiodd_ratio"].update(
+                    equiodd_ratio, n=batch_size
+                )
 
             if dpd is not np.nan:
                 metric_logger.meters["dpd"].update(dpd, n=batch_size)
@@ -1414,20 +1515,20 @@ def evaluate_fairness_gender(
     avg_dpd = metric_logger.dpd.global_avg
     avg_dpr = metric_logger.dpr.global_avg
 
-    if(args.cal_equiodds):
+    if args.cal_equiodds:
         return (
-        round(acc_avg, 3),
-        round(male_acc_avg, 3),
-        round(female_acc_avg, 3),
-        round(auc_avg, 3),
-        round(male_auc_avg, 3),
-        round(female_auc_avg, 3),
-        loss,
-        max_val_loss,
-        avg_e_diff,
-        avg_e_ratio,
-        avg_dpd,
-        avg_dpr
+            round(acc_avg, 3),
+            round(male_acc_avg, 3),
+            round(female_acc_avg, 3),
+            round(auc_avg, 3),
+            round(male_auc_avg, 3),
+            round(female_auc_avg, 3),
+            loss,
+            max_val_loss,
+            avg_e_diff,
+            avg_e_ratio,
+            avg_dpd,
+            avg_dpr,
         )
     else:
         return (
@@ -1442,7 +1543,6 @@ def evaluate_fairness_gender(
         )
 
 
-
 def evaluate_fairness_skin_type_binary(
     model,
     criterion,
@@ -1455,7 +1555,6 @@ def evaluate_fairness_skin_type_binary(
     classifier=None,
     **kwargs,
 ):
-
     print("EVALUATING")
     model.eval()
 
@@ -1478,7 +1577,7 @@ def evaluate_fairness_skin_type_binary(
             target = target.to(device, non_blocking=True)
             # sens_attr = sens_attr.to(device, non_blocking=True)
 
-            if(args.fscl):
+            if args.fscl:
                 output_from_encoder = model.encoder(image)
                 print("Output from encoder: ", output_from_encoder.shape)
                 output = classifier(output_from_encoder)
@@ -1520,12 +1619,14 @@ def evaluate_fairness_skin_type_binary(
                 max(
                     avg_loss_type1,
                     avg_loss_type2,
-            ))
+                )
+            )
             min_val_loss = torch.tensor(
                 min(
                     avg_loss_type1,
                     avg_loss_type2,
-            ))
+                )
+            )
 
             diff_loss = torch.abs(max_val_loss - min_val_loss)
 
@@ -1547,14 +1648,13 @@ def evaluate_fairness_skin_type_binary(
             dpd = utils.dpd(preds, target, sens_attr)
             dpr = utils.dpr(preds, target, sens_attr)
 
-
             acc1 = acc1[0]
 
             try:
                 acc_type0 = res_type0[0]
             except:
                 acc_type0 = np.nan
-            
+
             try:
                 acc_type1 = res_type1[0]
             except:
@@ -1567,30 +1667,31 @@ def evaluate_fairness_skin_type_binary(
             metric_logger.update(diff_loss=diff_loss)
             metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
 
-            if(acc_type0 != np.nan):
+            if acc_type0 != np.nan:
                 metric_logger.meters["acc_type0"].update(acc_type0.item(), n=batch_size)
-            if(acc_type1 != np.nan):
+            if acc_type1 != np.nan:
                 metric_logger.meters["acc_type1"].update(acc_type1.item(), n=batch_size)
 
-            if(auc != np.nan):
+            if auc != np.nan:
                 metric_logger.meters["auc"].update(auc, n=batch_size)
-            if(auc_type0 != np.nan):    
+            if auc_type0 != np.nan:
                 metric_logger.meters["auc_type0"].update(auc_type0, n=batch_size)
-            if(auc_type1 != np.nan):
+            if auc_type1 != np.nan:
                 metric_logger.meters["auc_type1"].update(auc_type1, n=batch_size)
 
             if equiodd_diff is not np.nan:
                 metric_logger.meters["equiodd_diff"].update(equiodd_diff, n=batch_size)
             if equiodd_ratio is not np.nan:
-                metric_logger.meters["equiodd_ratio"].update(equiodd_ratio, n=batch_size)
+                metric_logger.meters["equiodd_ratio"].update(
+                    equiodd_ratio, n=batch_size
+                )
 
             if dpd is not np.nan:
                 metric_logger.meters["dpd"].update(dpd, n=batch_size)
             if dpr is not np.nan:
                 metric_logger.meters["dpr"].update(dpr, n=batch_size)
 
-
-            #metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
+            # metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
             metric_logger.meters["auc"].update(auc, n=batch_size)
             metric_logger.meters["max_val_loss"].update(max_val_loss, n=batch_size)
             metric_logger.meters["diff_loss"].update(diff_loss, n=batch_size)
@@ -1618,8 +1719,8 @@ def evaluate_fairness_skin_type_binary(
 
     avg_dpd = metric_logger.dpd.global_avg
     avg_dpr = metric_logger.dpr.global_avg
-    
-    if(args.cal_equiodds):
+
+    if args.cal_equiodds:
         return (
             round(acc_avg, 3),
             round(acc_type0_avg, 3),
@@ -1632,7 +1733,7 @@ def evaluate_fairness_skin_type_binary(
             avg_e_diff,
             avg_e_ratio,
             avg_dpd,
-            avg_dpr
+            avg_dpr,
         )
     else:
         return (
@@ -1682,7 +1783,7 @@ def evaluate_fairness_age_binary(
             target = target.to(device, non_blocking=True)
             # sens_attr = sens_attr.to(device, non_blocking=True)
 
-            if(args.fscl):
+            if args.fscl:
                 output_from_encoder = model.encoder(image)
                 print("Output from encoder: ", output_from_encoder.shape)
                 output = classifier(output_from_encoder)
@@ -1696,19 +1797,16 @@ def evaluate_fairness_age_binary(
 
             loss_type1 = torch.mean(loss[sens_attr == 0])
             loss_type2 = torch.mean(loss[sens_attr == 1])
-            
 
             total_loss_type1 += loss_type1.item()
             total_loss_type2 += loss_type2.item()
-            
 
             num_type1 += torch.sum(sens_attr == 0).item()
             num_type2 += torch.sum(sens_attr == 1).item()
-            
+
             total_losses = [
                 total_loss_type1,
                 total_loss_type2,
-                
             ]
             num_samples = [
                 num_type1,
@@ -1728,14 +1826,14 @@ def evaluate_fairness_age_binary(
                 max(
                     avg_loss_type1,
                     avg_loss_type2,
-                    
-            ))
+                )
+            )
             min_val_loss = torch.tensor(
                 min(
                     avg_loss_type1,
                     avg_loss_type2,
-                    
-            ))
+                )
+            )
 
             diff_loss = torch.abs(max_val_loss - min_val_loss)
 
@@ -1776,7 +1874,6 @@ def evaluate_fairness_age_binary(
             dpd = utils.dpd(preds, target, sens_attr)
             dpr = utils.dpr(preds, target, sens_attr)
 
-            
             metric_logger.update(loss=torch.mean(loss).item())
             metric_logger.update(ece_loss=ece_loss.item())
             metric_logger.update(max_val_loss=max_val_loss)
@@ -1789,7 +1886,9 @@ def evaluate_fairness_age_binary(
             if equiodd_diff is not np.nan:
                 metric_logger.meters["equiodd_diff"].update(equiodd_diff, n=batch_size)
             if equiodd_ratio is not np.nan:
-                metric_logger.meters["equiodd_ratio"].update(equiodd_ratio, n=batch_size)
+                metric_logger.meters["equiodd_ratio"].update(
+                    equiodd_ratio, n=batch_size
+                )
 
             if dpd is not np.nan:
                 metric_logger.meters["dpd"].update(dpd, n=batch_size)
@@ -1822,9 +1921,8 @@ def evaluate_fairness_age_binary(
 
     avg_dpd = metric_logger.dpd.global_avg
     avg_dpr = metric_logger.dpr.global_avg
-    
 
-    if(args.cal_equiodds):
+    if args.cal_equiodds:
         print("CAL EQUIODDS ENABLED")
         return (
             round(acc_avg, 3),
@@ -1838,7 +1936,7 @@ def evaluate_fairness_age_binary(
             avg_e_diff,
             avg_e_ratio,
             avg_dpd,
-            avg_dpr
+            avg_dpr,
         )
     else:
         return (
@@ -1851,6 +1949,7 @@ def evaluate_fairness_age_binary(
             loss,
             max_val_loss,
         )
+
 
 def evaluate_fairness_race_binary(
     model,
@@ -1887,9 +1986,9 @@ def evaluate_fairness_race_binary(
             target = target.to(device, non_blocking=True)
             # sens_attr = sens_attr.to(device, non_blocking=True)
 
-            if(args.fscl):
+            if args.fscl:
                 output_from_encoder = model.encoder(image)
-                #print("Output from encoder: ", output_from_encoder.shape)
+                # print("Output from encoder: ", output_from_encoder.shape)
                 output = classifier(output_from_encoder)
             else:
                 output = model(image)
@@ -1901,19 +2000,16 @@ def evaluate_fairness_race_binary(
 
             loss_type1 = torch.mean(loss[sens_attr == 0])
             loss_type2 = torch.mean(loss[sens_attr == 1])
-            
 
             total_loss_type1 += loss_type1.item()
             total_loss_type2 += loss_type2.item()
-            
+
             num_type1 += torch.sum(sens_attr == 0).item()
             num_type2 += torch.sum(sens_attr == 1).item()
-            
-            
+
             total_losses = [
                 total_loss_type1,
                 total_loss_type2,
-                
             ]
             num_samples = [
                 num_type1,
@@ -1933,14 +2029,14 @@ def evaluate_fairness_race_binary(
                 max(
                     avg_loss_type1,
                     avg_loss_type2,
-                    
-            ))
+                )
+            )
             min_val_loss = torch.tensor(
                 min(
                     avg_loss_type1,
                     avg_loss_type2,
-                    
-            ))
+                )
+            )
 
             diff_loss = torch.abs(max_val_loss - min_val_loss)
 
@@ -1981,7 +2077,6 @@ def evaluate_fairness_race_binary(
             dpd = utils.dpd(preds, target, sens_attr)
             dpr = utils.dpr(preds, target, sens_attr)
 
-            
             metric_logger.update(loss=torch.mean(loss).item())
             metric_logger.update(ece_loss=ece_loss.item())
             metric_logger.update(max_val_loss=max_val_loss)
@@ -1994,7 +2089,9 @@ def evaluate_fairness_race_binary(
             if equiodd_diff is not np.nan:
                 metric_logger.meters["equiodd_diff"].update(equiodd_diff, n=batch_size)
             if equiodd_ratio is not np.nan:
-                metric_logger.meters["equiodd_ratio"].update(equiodd_ratio, n=batch_size)
+                metric_logger.meters["equiodd_ratio"].update(
+                    equiodd_ratio, n=batch_size
+                )
 
             if dpd is not np.nan:
                 metric_logger.meters["dpd"].update(dpd, n=batch_size)
@@ -2027,9 +2124,8 @@ def evaluate_fairness_race_binary(
 
     avg_dpd = metric_logger.dpd.global_avg
     avg_dpr = metric_logger.dpr.global_avg
-    
 
-    if(args.cal_equiodds):
+    if args.cal_equiodds:
         print("CAL EQUIODDS ENABLED")
         return (
             round(acc_avg, 3),
@@ -2043,7 +2139,7 @@ def evaluate_fairness_race_binary(
             avg_e_diff,
             avg_e_ratio,
             avg_dpd,
-            avg_dpr
+            avg_dpr,
         )
     else:
         return (
@@ -2079,7 +2175,7 @@ def evaluate_fairness_age_sex(
     total_loss_type2 = 0.0
     total_loss_type3 = 0.0
     total_loss_type4 = 0.0
-    
+
     num_type1 = 0
     num_type2 = 0
     num_type3 = 0
@@ -2097,7 +2193,7 @@ def evaluate_fairness_age_sex(
             target = target.to(device, non_blocking=True)
             # sens_attr = sens_attr.to(device, non_blocking=True)
 
-            if(args.fscl):
+            if args.fscl:
                 output_from_encoder = model.encoder(image)
                 print("Output from encoder: ", output_from_encoder.shape)
                 output = classifier(output_from_encoder)
@@ -2154,25 +2250,31 @@ def evaluate_fairness_age_sex(
                     avg_loss_type2,
                     avg_loss_type3,
                     avg_loss_type4,
-            ))
+                )
+            )
             min_val_loss = torch.tensor(
                 min(
                     avg_loss_type1,
                     avg_loss_type2,
                     avg_loss_type3,
                     avg_loss_type4,
-            ))
+                )
+            )
 
             # Take the difference between the greatest and the smallest loss
-            #print("max_val_loss", max_val_loss)
-            #print(type(max_val_loss))
+            # print("max_val_loss", max_val_loss)
+            # print(type(max_val_loss))
             diff_loss = torch.abs(max_val_loss - min_val_loss)
 
             # Accuracy
-            acc1, res_type0, res_type1, res_type2, res_type3 = utils.accuracy_by_age_sex(
-                output, target, sens_attr, topk=(1,)
-            )
-            
+            (
+                acc1,
+                res_type0,
+                res_type1,
+                res_type2,
+                res_type3,
+            ) = utils.accuracy_by_age_sex(output, target, sens_attr, topk=(1,))
+
             acc1 = acc1[0]
 
             # AUC
@@ -2205,7 +2307,6 @@ def evaluate_fairness_age_sex(
                 acc_type3 = res_type3[0]
             except:
                 acc_type3 = np.nan
-            
 
             acc1_orig, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
 
@@ -2217,13 +2318,21 @@ def evaluate_fairness_age_sex(
             metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
             metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
             if acc_type0 != np.nan:
-                metric_logger.meters["acc_AgeSex0"].update(acc_type0.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex0"].update(
+                    acc_type0.item(), n=batch_size
+                )
             if acc_type1 != np.nan:
-                metric_logger.meters["acc_AgeSex1"].update(acc_type1.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex1"].update(
+                    acc_type1.item(), n=batch_size
+                )
             if acc_type2 != np.nan:
-                metric_logger.meters["acc_AgeSex2"].update(acc_type2.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex2"].update(
+                    acc_type2.item(), n=batch_size
+                )
             if acc_type3 != np.nan:
-                metric_logger.meters["acc_AgeSex3"].update(acc_type3.item(), n=batch_size)
+                metric_logger.meters["acc_AgeSex3"].update(
+                    acc_type3.item(), n=batch_size
+                )
 
             if auc != np.nan:
                 metric_logger.meters["auc"].update(auc, n=batch_size)
@@ -2239,13 +2348,15 @@ def evaluate_fairness_age_sex(
             if equiodd_diff is not np.nan:
                 metric_logger.meters["equiodd_diff"].update(equiodd_diff, n=batch_size)
             if equiodd_ratio is not np.nan:
-                metric_logger.meters["equiodd_ratio"].update(equiodd_ratio, n=batch_size)
+                metric_logger.meters["equiodd_ratio"].update(
+                    equiodd_ratio, n=batch_size
+                )
 
             if dpd is not np.nan:
                 metric_logger.meters["dpd"].update(dpd, n=batch_size)
             if dpr is not np.nan:
                 metric_logger.meters["dpr"].update(dpr, n=batch_size)
-            
+
             metric_logger.meters["max_val_loss"].update(max_val_loss, n=batch_size)
             metric_logger.meters["diff_loss"].update(diff_loss, n=batch_size)
             num_processed_samples += batch_size
@@ -2277,7 +2388,7 @@ def evaluate_fairness_age_sex(
     avg_dpd = metric_logger.dpd.global_avg
     avg_dpr = metric_logger.dpr.global_avg
 
-    if(args.cal_equiodds):
+    if args.cal_equiodds:
         return (
             round(acc_avg, 3),
             round(acc_age0_avg, 3),
@@ -2294,7 +2405,7 @@ def evaluate_fairness_age_sex(
             avg_e_diff,
             avg_e_ratio,
             avg_dpd,
-            avg_dpr
+            avg_dpr,
         )
     else:
         return (
@@ -2311,6 +2422,7 @@ def evaluate_fairness_age_sex(
             loss,
             max_val_loss,
         )
+
 
 def _get_cache_path(filepath):
     import hashlib
@@ -2500,8 +2612,10 @@ def load_data(traindir, valdir, testdir, args):
         test_sampler,
     )
 
+
 class TwoCropTransform:
     """Create two crops of the same image"""
+
     def __init__(self, transform):
         self.transform = transform
 
@@ -2526,37 +2640,38 @@ def load_fairness_data(args, df, df_val, df_test):
         print(f"Loading dataset_train from {cache_path}")
         dataset, _ = torch.load(cache_path)
     else:
-
-        if(args.train_fscl_encoder):
+        if args.train_fscl_encoder:
             mean = (0.5000, 0.5000, 0.5000)
             std = (0.5000, 0.5000, 0.5000)
             normalize = T.Normalize(mean=mean, std=std)
 
-            transform = T.Compose([
-                T.RandomResizedCrop(size=train_crop_size, scale=(0.2, 1.)),
-                T.RandomHorizontalFlip(),
-                T.RandomApply([
-                    T.ColorJitter(0.4, 0.4, 0.4, 0.1)
-                ], p=0.8),
-                T.RandomGrayscale(p=0.2),
-                T.ToTensor(),
-                normalize,
-            ])
+            transform = T.Compose(
+                [
+                    T.RandomResizedCrop(size=train_crop_size, scale=(0.2, 1.0)),
+                    T.RandomHorizontalFlip(),
+                    T.RandomApply([T.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+                    T.RandomGrayscale(p=0.2),
+                    T.ToTensor(),
+                    normalize,
+                ]
+            )
 
             transform = TwoCropTransform(transform)
 
         elif args.train_fscl_classifier:
             mean = (0.5000, 0.5000, 0.5000)
             std = (0.5000, 0.5000, 0.5000)
-        
+
             normalize = T.Normalize(mean=mean, std=std)
 
-            transform = T.Compose([
-                T.RandomResizedCrop(size=train_crop_size, scale=(0.2, 1.)),
-                T.RandomHorizontalFlip(),
-                T.ToTensor(),
-                normalize,
-            ])
+            transform = T.Compose(
+                [
+                    T.RandomResizedCrop(size=train_crop_size, scale=(0.2, 1.0)),
+                    T.RandomHorizontalFlip(),
+                    T.ToTensor(),
+                    normalize,
+                ]
+            )
 
         else:
             # We need a default value for the variables below because args may come
@@ -2583,22 +2698,34 @@ def load_fairness_data(args, df, df_val, df_test):
         # MAKE TRAINING DATA HERE
 
         if args.dataset == "HAM10000":
-            dataset = HAM10000.HAM10000Dataset(df, args.sens_attribute, transform, args.age_type, args.label_type)
+            dataset = HAM10000.HAM10000Dataset(
+                df, args.sens_attribute, transform, args.age_type, args.label_type
+            )
         elif args.dataset == "fitzpatrick":
             args.num_skin_types = 6
             dataset = fitzpatrick.FitzpatrickDataset(df, transform, args.skin_type)
         elif args.dataset == "papila":
             dataset = papila.PapilaDataset(df, args.sens_attribute, transform)
         elif args.dataset == "ol3i":
-            dataset = ol3i.OL3IDataset(df, args.sens_attribute, transform, args.age_type)
+            dataset = ol3i.OL3IDataset(
+                df, args.sens_attribute, transform, args.age_type
+            )
         elif args.dataset == "oasis":
-            dataset = oasis.OASISDataset(df, args.sens_attribute, transform, args.age_type)
-        elif args.dataset == 'chexpert':
-            dataset = chexpert.ChexpertDataset(df, args.sens_attribute, transform, args.age_type)
-        elif args.dataset == 'glaucoma':
-            dataset = glaucoma.HarvardGlaucoma(df, args.sens_attribute, transform, args.age_type)
+            dataset = oasis.OASISDataset(
+                df, args.sens_attribute, transform, args.age_type
+            )
+        elif args.dataset == "chexpert":
+            dataset = chexpert.ChexpertDataset(
+                df, args.sens_attribute, transform, args.age_type
+            )
+        elif args.dataset == "glaucoma":
+            dataset = glaucoma.HarvardGlaucoma(
+                df, args.sens_attribute, transform, args.age_type
+            )
         else:
-            raise NotImplementedError("{} dataset not implemented for training".format(args.dataset))
+            raise NotImplementedError(
+                "{} dataset not implemented for training".format(args.dataset)
+            )
 
     print("Took", time.time() - st)
     print("Loading validation and test data")
@@ -2612,18 +2739,19 @@ def load_fairness_data(args, df, df_val, df_test):
             weights = torchvision.models.get_weight(args.weights)
             transform_eval = weights.transforms()
         else:
-
-            if(args.train_fscl_classifier):
+            if args.train_fscl_classifier:
                 mean = (0.5000, 0.5000, 0.5000)
                 std = (0.5000, 0.5000, 0.5000)
-            
+
                 normalize = T.Normalize(mean=mean, std=std)
 
-                transform_eval = T.Compose([
-                                        T.RandomResizedCrop(size=train_crop_size, scale=(0.2, 1.)),
-                                        T.ToTensor(),
-                                        normalize,
-                                    ])
+                transform_eval = T.Compose(
+                    [
+                        T.RandomResizedCrop(size=train_crop_size, scale=(0.2, 1.0)),
+                        T.ToTensor(),
+                        normalize,
+                    ]
+                )
             else:
                 transform_eval = presets.ClassificationPresetEval(
                     crop_size=val_crop_size,
@@ -2631,28 +2759,68 @@ def load_fairness_data(args, df, df_val, df_test):
                     interpolation=interpolation,
                 )
         if args.dataset == "HAM10000":
-            dataset_val = HAM10000.HAM10000Dataset(df_val, args.sens_attribute, transform_eval, args.age_type, args.label_type)
-            dataset_test = HAM10000.HAM10000Dataset(df_test, args.sens_attribute, transform_eval, args.age_type, args.label_type)
+            dataset_val = HAM10000.HAM10000Dataset(
+                df_val,
+                args.sens_attribute,
+                transform_eval,
+                args.age_type,
+                args.label_type,
+            )
+            dataset_test = HAM10000.HAM10000Dataset(
+                df_test,
+                args.sens_attribute,
+                transform_eval,
+                args.age_type,
+                args.label_type,
+            )
         elif args.dataset == "fitzpatrick":
-            dataset_val = fitzpatrick.FitzpatrickDataset(df_val, transform_eval, args.skin_type)
-            dataset_test = fitzpatrick.FitzpatrickDataset(df_test, transform_eval, args.skin_type)
+            dataset_val = fitzpatrick.FitzpatrickDataset(
+                df_val, transform_eval, args.skin_type
+            )
+            dataset_test = fitzpatrick.FitzpatrickDataset(
+                df_test, transform_eval, args.skin_type
+            )
         elif args.dataset == "papila":
-            dataset_val = papila.PapilaDataset(df_val, args.sens_attribute, transform_eval)
-            dataset_test = papila.PapilaDataset(df_test, args.sens_attribute, transform_eval)
+            dataset_val = papila.PapilaDataset(
+                df_val, args.sens_attribute, transform_eval
+            )
+            dataset_test = papila.PapilaDataset(
+                df_test, args.sens_attribute, transform_eval
+            )
         elif args.dataset == "ol3i":
-            dataset_val = ol3i.OL3IDataset(df_val, args.sens_attribute, transform_eval, args.age_type)
-            dataset_test = ol3i.OL3IDataset(df_test, args.sens_attribute, transform_eval, args.age_type)
+            dataset_val = ol3i.OL3IDataset(
+                df_val, args.sens_attribute, transform_eval, args.age_type
+            )
+            dataset_test = ol3i.OL3IDataset(
+                df_test, args.sens_attribute, transform_eval, args.age_type
+            )
         elif args.dataset == "oasis":
-            dataset_val = oasis.OASISDataset(df_val, args.sens_attribute, transform_eval, args.age_type)
-            dataset_test = oasis.OASISDataset(df_test, args.sens_attribute, transform_eval, args.age_type)
-        elif args.dataset == 'chexpert':
-            dataset_val = chexpert.ChexpertDataset(df_val, args.sens_attribute, transform_eval, args.age_type)
-            dataset_test = chexpert.ChexpertDataset(df_test, args.sens_attribute, transform_eval, args.age_type)
-        elif args.dataset == 'glaucoma':
-            dataset_val = glaucoma.HarvardGlaucoma(df_val, args.sens_attribute, transform_eval, args.age_type)
-            dataset_test = glaucoma.HarvardGlaucoma(df_test, args.sens_attribute, transform_eval, args.age_type)
+            dataset_val = oasis.OASISDataset(
+                df_val, args.sens_attribute, transform_eval, args.age_type
+            )
+            dataset_test = oasis.OASISDataset(
+                df_test, args.sens_attribute, transform_eval, args.age_type
+            )
+        elif args.dataset == "chexpert":
+            dataset_val = chexpert.ChexpertDataset(
+                df_val, args.sens_attribute, transform_eval, args.age_type
+            )
+            dataset_test = chexpert.ChexpertDataset(
+                df_test, args.sens_attribute, transform_eval, args.age_type
+            )
+        elif args.dataset == "glaucoma":
+            dataset_val = glaucoma.HarvardGlaucoma(
+                df_val, args.sens_attribute, transform_eval, args.age_type
+            )
+            dataset_test = glaucoma.HarvardGlaucoma(
+                df_test, args.sens_attribute, transform_eval, args.age_type
+            )
         else:
-            raise NotImplementedError("{} dataset not implemented for either validation or test".format(args.dataset))
+            raise NotImplementedError(
+                "{} dataset not implemented for either validation or test".format(
+                    args.dataset
+                )
+            )
 
     print("Creating data loaders")
 
@@ -2844,7 +3012,7 @@ def get_fairness_data(args, yaml_data):
     val_df = pd.read_csv(val_csv_path)
     test_df = pd.read_csv(test_csv_path)
 
-    if(args.train_subset_ratio is not None):
+    if args.train_subset_ratio is not None:
         original_dataset_size = len(train_df)
         dataset_size = int(len(train_df) * args.train_subset_ratio)
         subset_rows = random.sample(range(original_dataset_size), k=dataset_size)
@@ -2852,7 +3020,7 @@ def get_fairness_data(args, yaml_data):
         train_df = train_df.iloc[subset_rows]
         train_df = train_df.reset_index(drop=True)
 
-    if(args.val_subset_ratio is not None):
+    if args.val_subset_ratio is not None:
         original_dataset_size = len(val_df)
         dataset_size = int(len(val_df) * args.val_subset_ratio)
         subset_rows = random.sample(range(original_dataset_size), k=dataset_size)
@@ -2860,7 +3028,7 @@ def get_fairness_data(args, yaml_data):
         val_df = val_df.iloc[subset_rows]
         val_df = val_df.reset_index(drop=True)
 
-    if(args.dataset not in ["ol3i", "chexpert"]):
+    if args.dataset not in ["ol3i", "chexpert"]:
         train_df["Path"] = train_df["Path"].apply(lambda x: os.path.join(img_path, x))
         val_df["Path"] = val_df["Path"].apply(lambda x: os.path.join(img_path, x))
         test_df["Path"] = test_df["Path"].apply(lambda x: os.path.join(img_path, x))

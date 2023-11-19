@@ -19,7 +19,13 @@ class RandomMixup(torch.nn.Module):
         inplace (bool): boolean to make this transform inplace. Default set to False.
     """
 
-    def __init__(self, num_classes: int, p: float = 0.5, alpha: float = 1.0, inplace: bool = False) -> None:
+    def __init__(
+        self,
+        num_classes: int,
+        p: float = 0.5,
+        alpha: float = 1.0,
+        inplace: bool = False,
+    ) -> None:
         super().__init__()
 
         if num_classes < 1:
@@ -58,7 +64,9 @@ class RandomMixup(torch.nn.Module):
             target = target.clone()
 
         if target.ndim == 1:
-            target = torch.nn.functional.one_hot(target, num_classes=self.num_classes).to(dtype=batch.dtype)
+            target = torch.nn.functional.one_hot(
+                target, num_classes=self.num_classes
+            ).to(dtype=batch.dtype)
 
         if torch.rand(1).item() >= self.p:
             return batch, target
@@ -68,7 +76,9 @@ class RandomMixup(torch.nn.Module):
         target_rolled = target.roll(1, 0)
 
         # Implemented as on mixup paper, page 3.
-        lambda_param = float(torch._sample_dirichlet(torch.tensor([self.alpha, self.alpha]))[0])
+        lambda_param = float(
+            torch._sample_dirichlet(torch.tensor([self.alpha, self.alpha]))[0]
+        )
         batch_rolled.mul_(1.0 - lambda_param)
         batch.mul_(lambda_param).add_(batch_rolled)
 
@@ -103,10 +113,18 @@ class RandomCutmix(torch.nn.Module):
         inplace (bool): boolean to make this transform inplace. Default set to False.
     """
 
-    def __init__(self, num_classes: int, p: float = 0.5, alpha: float = 1.0, inplace: bool = False) -> None:
+    def __init__(
+        self,
+        num_classes: int,
+        p: float = 0.5,
+        alpha: float = 1.0,
+        inplace: bool = False,
+    ) -> None:
         super().__init__()
         if num_classes < 1:
-            raise ValueError("Please provide a valid positive value for the num_classes.")
+            raise ValueError(
+                "Please provide a valid positive value for the num_classes."
+            )
         if alpha <= 0:
             raise ValueError("Alpha param can't be zero.")
 
@@ -138,7 +156,9 @@ class RandomCutmix(torch.nn.Module):
             target = target.clone()
 
         if target.ndim == 1:
-            target = torch.nn.functional.one_hot(target, num_classes=self.num_classes).to(dtype=batch.dtype)
+            target = torch.nn.functional.one_hot(
+                target, num_classes=self.num_classes
+            ).to(dtype=batch.dtype)
 
         if torch.rand(1).item() >= self.p:
             return batch, target
@@ -148,7 +168,9 @@ class RandomCutmix(torch.nn.Module):
         target_rolled = target.roll(1, 0)
 
         # Implemented as on cutmix paper, page 12 (with minor corrections on typos).
-        lambda_param = float(torch._sample_dirichlet(torch.tensor([self.alpha, self.alpha]))[0])
+        lambda_param = float(
+            torch._sample_dirichlet(torch.tensor([self.alpha, self.alpha]))[0]
+        )
         _, H, W = F.get_dimensions(batch)
 
         r_x = torch.randint(W, (1,))

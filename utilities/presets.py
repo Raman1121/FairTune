@@ -22,14 +22,28 @@ class ClassificationPresetTrain:
             trans.append(transforms.RandomHorizontalFlip(hflip_prob))
         if auto_augment_policy is not None:
             if auto_augment_policy == "ra":
-                trans.append(autoaugment.RandAugment(interpolation=interpolation, magnitude=ra_magnitude))
+                trans.append(
+                    autoaugment.RandAugment(
+                        interpolation=interpolation, magnitude=ra_magnitude
+                    )
+                )
             elif auto_augment_policy == "ta_wide":
-                trans.append(autoaugment.TrivialAugmentWide(interpolation=interpolation))
+                trans.append(
+                    autoaugment.TrivialAugmentWide(interpolation=interpolation)
+                )
             elif auto_augment_policy == "augmix":
-                trans.append(autoaugment.AugMix(interpolation=interpolation, severity=augmix_severity))
+                trans.append(
+                    autoaugment.AugMix(
+                        interpolation=interpolation, severity=augmix_severity
+                    )
+                )
             else:
                 aa_policy = autoaugment.AutoAugmentPolicy(auto_augment_policy)
-                trans.append(autoaugment.AutoAugment(policy=aa_policy, interpolation=interpolation))
+                trans.append(
+                    autoaugment.AutoAugment(
+                        policy=aa_policy, interpolation=interpolation
+                    )
+                )
         trans.extend(
             [
                 transforms.PILToTensor(),
@@ -56,7 +70,6 @@ class ClassificationPresetEval:
         std=(0.229, 0.224, 0.225),
         interpolation=InterpolationMode.BILINEAR,
     ):
-
         self.transforms = transforms.Compose(
             [
                 transforms.Resize(resize_size, interpolation=interpolation),

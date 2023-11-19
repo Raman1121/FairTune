@@ -306,13 +306,18 @@ def get_args_parser(add_help=True):
     )
     parser.add_argument("--masking_vector_idx", type=int, default=None)
 
-    parser.add_argument('--masking_vector', metavar='N', type=float, nargs='+',
-                        help='Elements of the masking vector')
-    
+    parser.add_argument(
+        "--masking_vector",
+        metavar="N",
+        type=float,
+        nargs="+",
+        help="Elements of the masking vector",
+    )
+
     parser.add_argument("--subnetwork_mask_name", type=str, default=None)
 
     parser.add_argument("--mask_path", type=str, default=None)
-    
+
     parser.add_argument(
         "--exp_vector_path",
         type=str,
@@ -376,18 +381,42 @@ def get_args_parser(add_help=True):
     )
 
     # FAIRNESS Arguements
-    parser.add_argument('--sens_attribute',
-                        type=str,
-                        default=None,
-                        help='Sensitive attribute to be used for fairness')
-    parser.add_argument('--age_type', type=str, default='binary', choices=['binary', 'multi'])
-    parser.add_argument('--skin_type', type=str, default='binary', choices=['binary', 'multi'])
-    parser.add_argument('--use_metric', type=str, default='auc', choices=['acc', 'auc'])
+    parser.add_argument(
+        "--sens_attribute",
+        type=str,
+        default=None,
+        help="Sensitive attribute to be used for fairness",
+    )
+    parser.add_argument(
+        "--age_type", type=str, default="binary", choices=["binary", "multi"]
+    )
+    parser.add_argument(
+        "--skin_type", type=str, default="binary", choices=["binary", "multi"]
+    )
+    parser.add_argument("--use_metric", type=str, default="auc", choices=["acc", "auc"])
 
     # HPARAM OPT (HPO) Arguements
-    parser.add_argument("--objective_metric", type=str, default="min_acc", choices=["min_acc", "min_auc", "acc_diff", "auc_diff", "max_loss", "overall_acc", "overall_auc"])
+    parser.add_argument(
+        "--objective_metric",
+        type=str,
+        default="min_acc",
+        choices=[
+            "min_acc",
+            "min_auc",
+            "acc_diff",
+            "auc_diff",
+            "max_loss",
+            "overall_acc",
+            "overall_auc",
+        ],
+    )
     parser.add_argument("--num_trials", type=int, default=5)
-    parser.add_argument("--pruner", type=str, default='SuccessiveHalving', choices=['SuccessiveHalving', 'MedianPruner', 'Hyperband'])
+    parser.add_argument(
+        "--pruner",
+        type=str,
+        default="SuccessiveHalving",
+        choices=["SuccessiveHalving", "MedianPruner", "Hyperband"],
+    )
     parser.add_argument(
         "--disable_storage",
         action="store_true",
@@ -415,14 +444,14 @@ def get_args_parser(add_help=True):
 
     parser.add_argument(
         "--cal_equiodds",
-        action='store_true',
+        action="store_true",
         help="Calculate Equalized odds and DPD",
     )
 
     # FSCL ARGUEMENTS
     parser.add_argument(
         "--fscl",
-        action='store_true',
+        action="store_true",
         help="To perform FSCL",
     )
     parser.add_argument(
@@ -439,7 +468,7 @@ def get_args_parser(add_help=True):
     )
     parser.add_argument(
         "--fscl_eval_only",
-        action='store_true',
+        action="store_true",
         help="To perform FSCL eval using the trained model",
     )
     parser.add_argument(
@@ -450,7 +479,7 @@ def get_args_parser(add_help=True):
     )
     parser.add_argument(
         "--contrast_mode",
-        default='all',
+        default="all",
         type=str,
         help="Contrast Mode in FSCL",
     )
@@ -460,16 +489,20 @@ def get_args_parser(add_help=True):
         type=float,
         help="Temperature Parameter in FSCL",
     )
-    parser.add_argument('--group_norm', type=int, default=0, help='group normalization')
+    parser.add_argument("--group_norm", type=int, default=0, help="group normalization")
 
-    parser.add_argument('--method', type=str, default='FSCL',
-                        choices=['FSCL','FSCL*','SupCon', 'SimCLR'], help='choose method')
+    parser.add_argument(
+        "--method",
+        type=str,
+        default="FSCL",
+        choices=["FSCL", "FSCL*", "SupCon", "SimCLR"],
+        help="choose method",
+    )
 
-    
     # HAM10000 LABELS
     parser.add_argument(
         "--label_type",
-        default='binary',
+        default="binary",
         type=str,
         help="Binary/ Multi labels to be used",
     )
