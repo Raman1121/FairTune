@@ -1,52 +1,52 @@
 data:
   HAM10000:
-    root_path: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/HAM10000_dataset'
-    img_path: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/HAM10000_dataset/combined'
-    train_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/HAM10000_dataset/MEDFAIR_splits/new_train2.csv'
-    val_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/HAM10000_dataset/MEDFAIR_splits/new_val2.csv'
-    test_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/HAM10000_dataset/MEDFAIR_splits/new_test2.csv'
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
 
-  fitzpatrick:
-    root_path: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/Fitzpatrick'
-    img_path: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/Fitzpatrick/data/finalfitz17k'
-    train_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/Fitzpatrick/MEDFAIR_splits/new_train.csv'
-    val_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/Fitzpatrick/MEDFAIR_splits/new_val.csv'
-    test_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/Fitzpatrick/MEDFAIR_splits/new_test.csv'
+  fitzpatrick: ''
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
 
   papila:
-    root_path: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/PAPILA'
-    img_path: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/PAPILA/FundusImages'
-    train_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/PAPILA/MEDFAIR_SPLITS/new_train.csv'
-    val_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/PAPILA/MEDFAIR_SPLITS/new_val.csv'
-    test_csv: '/home/co-dutt1/rds/hpc-work/ALL_DATASETS/PAPILA/MEDFAIR_SPLITS/new_test.csv'
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
 
   ol3i:
-    root_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OL3I/ol3i'
-    img_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OL3I/ol3i/Image_Slices'
-    train_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OL3I/ol3i/CSV/new_train.csv'
-    val_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OL3I/ol3i/CSV/new_val.csv'
-    test_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OL3I/ol3i/CSV/new_test.csv'
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
     
   oasis:
-    root_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OASIS-1/'
-    img_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OASIS-1/All_files'
-    train_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OASIS-1/CSVs/new_train.csv'
-    val_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OASIS-1/CSVs/new_val.csv'
-    test_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/OASIS-1/CSVs/new_test.csv'
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
 
   chexpert:
-    root_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/CheXpert-v1.0-small'
-    img_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/CheXpert-v1.0-small'
-    train_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/CheXpert-v1.0-small/new_train2.csv'
-    val_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/CheXpert-v1.0-small/new_val2.csv'
-    test_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/CheXpert-v1.0-small/new_test2.csv'
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
 
   glaucoma:
-    root_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/Harvard_glcm'
-    img_path: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/Harvard_glcm/All_files'
-    train_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/Harvard_glcm/new_train.csv'
-    val_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/Harvard_glcm/new_val.csv'
-    test_csv: '/rds/user/co-dutt1/hpc-work/ALL_DATASETS/Harvard_glcm/new_test.csv'
+    root_path: ''
+    img_path: ''
+    train_csv: ''
+    val_csv: ''
+    test_csv: ''
 
   
 
