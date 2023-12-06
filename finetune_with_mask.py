@@ -40,11 +40,11 @@ def create_results_df(args):
                 "Test AUC Male",
                 "Test AUC Female",
                 "Test AUC Difference",
-                "Mask Path",
                 "EquiOdd_diff",
                 "EquiOdd_ratio",
                 "DPD",
                 "DPR",
+                "Mask Path"
             ]
         )
 
@@ -495,6 +495,30 @@ def main(args):
                     device=device,
                 )
 
+                best_val_acc = max(acc_race0_avg, acc_race1_avg)
+                worst_val_acc = min(acc_race0_avg, acc_race1_avg)
+
+                best_val_auc = max(auc_race0_avg, auc_race1_avg)
+                worst_val_auc = min(auc_race0_avg, auc_race1_avg)
+
+                print(
+                    "Val Acc: {:.2f}, Val Race Group0 Acc: {:.2f}, Val Race Group1 Acc: {:.2f}, Val Loss: {:.2f}, Val MAX LOSS: {:.2f}".format(
+                        val_acc,
+                        acc_race0_avg,
+                        acc_race1_avg,
+                        torch.mean(val_loss),
+                        val_max_loss,
+                    )
+                )
+                print(
+                    "Val AUC: {:.2f}, Val Race Group0 AUC: {:.2f}, Val Race Group1 AUC: {:.2f}".format(
+                        val_auc,
+                        auc_race0_avg,
+                        auc_race1_avg,
+                    )
+                )
+                print("\n")
+
             elif args.sens_attribute == "age_sex":
                 assert args.dataset == "chexpert"
                 assert args.cal_equiodds is not None
@@ -733,6 +757,21 @@ def main(args):
                 device=device,
             )
 
+            print("\n")
+            print("Overall Test accuracy: ", test_acc)
+            print("Test Race Group 0 Accuracy: ", test_acc_type0)
+            print("Test Race Group 1 Accuracy: ", test_acc_type1)
+            print("\n")
+            print("Overall Test AUC: ", test_auc)
+            print("Test Race Group 0 AUC: ", test_auc_type0)
+            print("Test Race Group 1 AUC: ", test_auc_type1)
+            if args.cal_equiodds:
+                print("\n")
+                print("EquiOdds Difference: ", equiodds_diff)
+                print("EquiOdds Ratio: ", equiodds_ratio)
+                print("DPD: ", dpd)
+                print("DPR: ", dpr)
+
         elif args.sens_attribute == "age_sex":
             (
                 test_acc,
@@ -811,8 +850,8 @@ def main(args):
                 mask_path,
             ]
 
-        elif args.sens_attribute == "skin_type":
-            assert args.skin_type == "binary"
+        elif args.sens_attribute == "skin_type" or args.sens_attribute == "age" or args.sens_attribute == "race":
+            # assert args.skin_type == "binary"
             assert args.use_metric == "auc"
             assert args.cal_equiodds is not None
 
@@ -834,50 +873,50 @@ def main(args):
                 mask_path,
             ]
 
-        elif args.sens_attribute == "age":
-            assert args.age_type == "binary"
-            assert args.use_metric == "auc"
-            assert args.cal_equiodds is not None
+        # elif args.sens_attribute == "age":
+        #     assert args.age_type == "binary"
+        #     assert args.use_metric == "auc"
+        #     assert args.cal_equiodds is not None
 
-            best_auc = max(test_auc_type0, test_auc_type1)
-            worst_auc = min(test_auc_type0, test_auc_type1)
+        #     best_auc = max(test_auc_type0, test_auc_type1)
+        #     worst_auc = min(test_auc_type0, test_auc_type1)
 
-            new_row2 = [
-                args.tuning_method,
-                round(trainable_percentage, 3),
-                args.lr,
-                test_auc,
-                best_auc,
-                worst_auc,
-                round(abs(best_auc - worst_auc), 3),
-                round(equiodds_diff, 3),
-                round(equiodds_ratio, 3),
-                round(dpd, 3),
-                round(dpr, 3),
-                mask_path,
-            ]
+        #     new_row2 = [
+        #         args.tuning_method,
+        #         round(trainable_percentage, 3),
+        #         args.lr,
+        #         test_auc,
+        #         best_auc,
+        #         worst_auc,
+        #         round(abs(best_auc - worst_auc), 3),
+        #         round(equiodds_diff, 3),
+        #         round(equiodds_ratio, 3),
+        #         round(dpd, 3),
+        #         round(dpr, 3),
+        #         mask_path,
+        #     ]
 
-        elif args.sens_attribute == "race":
-            assert args.use_metric == "auc"
-            assert args.cal_equiodds is not None
+        # elif args.sens_attribute == "race":
+        #     assert args.use_metric == "auc"
+        #     assert args.cal_equiodds is not None
 
-            best_auc = max(test_auc_type0, test_auc_type1)
-            worst_auc = min(test_auc_type0, test_auc_type1)
+        #     best_auc = max(test_auc_type0, test_auc_type1)
+        #     worst_auc = min(test_auc_type0, test_auc_type1)
 
-            new_row2 = [
-                args.tuning_method,
-                round(trainable_percentage, 3),
-                args.lr,
-                test_auc,
-                best_auc,
-                worst_auc,
-                round(abs(best_auc - worst_auc), 3),
-                round(equiodds_diff, 3),
-                round(equiodds_ratio, 3),
-                round(dpd, 3),
-                round(dpr, 3),
-                mask_path,
-            ]
+        #     new_row2 = [
+        #         args.tuning_method,
+        #         round(trainable_percentage, 3),
+        #         args.lr,
+        #         test_auc,
+        #         best_auc,
+        #         worst_auc,
+        #         round(abs(best_auc - worst_auc), 3),
+        #         round(equiodds_diff, 3),
+        #         round(equiodds_ratio, 3),
+        #         round(dpd, 3),
+        #         round(dpr, 3),
+        #         mask_path,
+        #     ]
 
         elif args.sens_attribute == "age_sex":
             assert args.use_metric == "auc"
