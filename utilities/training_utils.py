@@ -128,11 +128,16 @@ def train_one_epoch_fairness(
         start_time = time.time()
         image, target = image.to(device), target.to(device)
 
+        #tol_target += target.tolist()
+        
+
         with torch.cuda.amp.autocast(enabled=scaler is not None):
+
             output = model(image)
             tol_output += output.tolist()
             loss = torch.mean(criterion(output, target))
             ece_loss = ece_criterion(output, target)
+            #ece_loss = 0
 
         optimizer.zero_grad()
         if scaler is not None:
@@ -158,6 +163,7 @@ def train_one_epoch_fairness(
         # acc1, acc5 = utils.accuracy(output, target, topk=(1, args.num_classes))
         # auc = utils.auc(output, target, pos_label=kwargs['pos_label'])
         if args.sens_attribute == "gender":
+
             ####################################### ACCURACY #########################################
             acc1, acc_male, acc_female = utils.accuracy_by_gender(
                 output, target, sens_attr, topk=(1, args.num_classes)
@@ -171,25 +177,25 @@ def train_one_epoch_fairness(
                 output, target, sens_attr, topk=(1, args.num_classes)
             )
 
-        elif args.sens_attribute == "skin_type":
-            assert args.skin_type == "binary"
-
+        elif args.sens_attribute == "skin_type":   
+            assert args.skin_type == "binary" 
+        
             ####################################### ACCURACY #########################################
             acc1, res_type0, res_type1 = utils.accuracy_by_skin_type_binary(
                 output, target, sens_attr, topk=(1,)
             )
-
+            
             acc1 = acc1[0]
             acc_type0 = res_type0[0]
             acc_type1 = res_type1[0]
-
+            
             ########################################## AUC ############################################
             auc, auc_type0, auc_type1 = utils.auc_by_skin_type_binary(
                 output, target, sens_attr
             )
 
         elif args.sens_attribute == "age":
-            assert args.age_type == "binary"
+            assert args.age_type == 'binary'
 
             # Accuracy
             acc1, res_type0, res_type1 = utils.accuracy_by_age_binary(
@@ -204,7 +210,10 @@ def train_one_epoch_fairness(
                 output, target, sens_attr, topk=(1,)
             )
 
-        elif args.sens_attribute == "race":
+            
+            
+        elif args.sens_attribute == 'race':
+
             # Accuracy
             acc1, res_type0, res_type1 = utils.accuracy_by_race_binary(
                 output, target, sens_attr, topk=(1,)
@@ -218,17 +227,13 @@ def train_one_epoch_fairness(
                 output, target, sens_attr, topk=(1,)
             )
 
-        elif args.sens_attribute == "age_sex":
-            assert args.dataset == "chexpert"
+        elif args.sens_attribute == 'age_sex':
+            assert args.dataset == 'chexpert'
 
             # Accuracy
-            (
-                acc1,
-                res_type0,
-                res_type1,
-                res_type2,
-                res_type3,
-            ) = utils.accuracy_by_age_sex(output, target, sens_attr, topk=(1,))
+            acc1, res_type0, res_type1, res_type2, res_type3 = utils.accuracy_by_age_sex(
+                output, target, sens_attr, topk=(1,)
+            )
             acc1 = acc1[0]
             acc_type0 = res_type0[0]
             acc_type1 = res_type1[0]
@@ -239,7 +244,7 @@ def train_one_epoch_fairness(
             auc, auc_type0, auc_type1, auc_type2, auc_type3 = utils.auc_by_age_sex(
                 output, target, sens_attr, topk=(1,)
             )
-
+            
         else:
             raise NotImplementedError("Sens Attribute not implemented")
 
@@ -252,6 +257,7 @@ def train_one_epoch_fairness(
         metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
 
         if args.sens_attribute == "gender":
+
             ####################################### ACCURACY #########################################
             metric_logger.meters["acc1_male"].update(acc_male.item(), n=batch_size)
             metric_logger.meters["acc1_female"].update(acc_female.item(), n=batch_size)
@@ -273,23 +279,27 @@ def train_one_epoch_fairness(
             else:
                 metric_logger.meters["auc_female"].update(0.0, n=0)
 
+
         elif args.sens_attribute == "skin_type":
+            
             assert args.skin_type == "binary"
-
             ####################################### ACCURACY #########################################
-            if auc is not np.nan:
-                metric_logger.meters["auc"].update(auc.item(), n=batch_size)
-            else:
-                metric_logger.meters["auc"].update(0.0, n=0)
-            if acc_type0 is not np.nan:
-                metric_logger.meters["acc_type0"].update(acc_type0.item(), n=batch_size)
-            else:
-                metric_logger.meters["acc_type0"].update(0.0, n=0)
+            # if auc is not np.nan:
+            #     metric_logger.meters["auc"].update(auc.item(), n=batch_size)
+            # else:
+            #     metric_logger.meters["auc"].update(0.0, n=0)
+            # if acc_type0 is not np.nan:
+            #     metric_logger.meters["acc_type0"].update(acc_type0.item(), n=batch_size)
+            # else:
+            #     metric_logger.meters["acc_type0"].update(0.0, n=0)
 
-            if acc_type1 is not np.nan:
-                metric_logger.meters["acc_type1"].update(acc_type1.item(), n=batch_size)
-            else:
-                metric_logger.meters["acc_type1"].update(0.0, n=0)
+            # if acc_type1 is not np.nan: 
+            #     metric_logger.meters["acc_type1"].update(acc_type1.item(), n=batch_size)
+            # else:
+            #     metric_logger.meters["acc_type1"].update(0.0, n=0)
+
+            metric_logger.meters["Acc_group0"].update(acc_type0.item(), n=batch_size)
+            metric_logger.meters["Acc_group1"].update(acc_type1.item(), n=batch_size)
 
             ######################################## AUC ############################################
             if auc is not np.nan:
@@ -298,17 +308,19 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc"].update(0.0, n=0)
 
             if auc_type0 is not np.nan:
-                metric_logger.meters["auc_type0"].update(acc_type0.item(), n=batch_size)
+                metric_logger.meters["auc_type0"].update(auc_type0.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_type0"].update(0.0, n=0)
 
-            if auc_type1 is not np.nan:
+            if auc_type1 is not np.nan: 
                 metric_logger.meters["auc_type1"].update(auc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["auc_type1"].update(0.0, n=0)
 
+
         elif args.sens_attribute == "age":
-            assert args.age_type == "binary"
+
+            assert args.age_type == 'binary'
 
             # Accuracy
             if acc_type0 is not np.nan:
@@ -316,7 +328,7 @@ def train_one_epoch_fairness(
             else:
                 metric_logger.meters["acc_Age0"].update(0.0, n=batch_size)
 
-            if acc_type1 is not np.nan:
+            if acc_type1 is not np.nan: 
                 metric_logger.meters["acc_Age1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Age1"].update(0.0, n=batch_size)
@@ -331,20 +343,21 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc_Age0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_Age0"].update(0.0, n=0)
-
+            
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_Age1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_Age1"].update(0.0, n=0)
+        
+        elif args.sens_attribute == 'race':
 
-        elif args.sens_attribute == "race":
             # Accuracy
             if acc_type0 is not np.nan:
                 metric_logger.meters["acc_Race0"].update(acc_type0.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Race0"].update(0.0, n=batch_size)
 
-            if acc_type1 is not np.nan:
+            if acc_type1 is not np.nan: 
                 metric_logger.meters["acc_Race1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_Race1"].update(0.0, n=batch_size)
@@ -359,41 +372,35 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc_Race0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_Race0"].update(0.0, n=0)
-
+            
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_Race1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_Race1"].update(0.0, n=0)
 
-        elif args.sens_attribute == "age_sex":
+        elif args.sens_attribute == 'age_sex':
+
             # ACCURACY
             if acc_type0 is not np.nan:
-                metric_logger.meters["acc_AgeSex0"].update(
-                    acc_type0.item(), n=batch_size
-                )
+                metric_logger.meters["acc_AgeSex0"].update(acc_type0.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_AgeSex0"].update(0.0, n=0)
 
-            if acc_type1 is not np.nan:
-                metric_logger.meters["acc_AgeSex1"].update(
-                    acc_type1.item(), n=batch_size
-                )
+            if acc_type1 is not np.nan: 
+                metric_logger.meters["acc_AgeSex1"].update(acc_type1.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_AgeSex1"].update(0.0, n=0)
-
+            
             if acc_type2 is not np.nan:
-                metric_logger.meters["acc_AgeSex2"].update(
-                    acc_type2.item(), n=batch_size
-                )
+                metric_logger.meters["acc_AgeSex2"].update(acc_type2.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_AgeSex2"].update(0.0, n=0)
-
+            
             if acc_type3 is not np.nan:
-                metric_logger.meters["acc_AgeSex3"].update(
-                    acc_type3.item(), n=batch_size
-                )
+                metric_logger.meters["acc_AgeSex3"].update(acc_type3.item(), n=batch_size)
             else:
                 metric_logger.meters["acc_AgeSex3"].update(0.0, n=0)
+
 
             # AUC
             if auc is not np.nan:
@@ -405,101 +412,57 @@ def train_one_epoch_fairness(
                 metric_logger.meters["auc_AgeSex0"].update(auc_type0, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex0"].update(0.0, n=0)
-
+            
             if auc_type1 is not np.nan:
                 metric_logger.meters["auc_AgeSex1"].update(auc_type1, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex1"].update(0.0, n=0)
-
+            
             if auc_type2 is not np.nan:
                 metric_logger.meters["auc_AgeSex2"].update(auc_type2, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex2"].update(0.0, n=0)
-
+            
             if auc_type3 is not np.nan:
                 metric_logger.meters["auc_AgeSex3"].update(auc_type3, n=batch_size)
             else:
                 metric_logger.meters["auc_AgeSex3"].update(0.0, n=0)
+            
 
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
 
-        if args.sens_attribute == "gender":
-            best_acc_avg = max(
-                metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg
-            )
-            worst_acc_avg = min(
-                metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg
-            )
-            best_auc_avg = max(
-                metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg
-            )
-            worst_auc_avg = min(
-                metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg
-            )
 
-        elif args.sens_attribute == "skin_type":
-            assert args.skin_type == "binary"
+        if(args.sens_attribute == 'gender'):
+            best_acc_avg = max(metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg)
+            worst_acc_avg = min(metric_logger.acc1_male.global_avg, metric_logger.acc1_female.global_avg)
+            best_auc_avg = max(metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg)
+            worst_auc_avg = min(metric_logger.auc_male.global_avg, metric_logger.auc_female.global_avg)
 
-            best_acc_avg = max(
-                metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg
-            )
-            worst_acc_avg = min(
-                metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg
-            )
-            best_auc_avg = max(
-                metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg
-            )
-            worst_auc_avg = min(
-                metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg
-            )
+        elif(args.sens_attribute == 'skin_type'):
+            assert args.skin_type == 'binary'
+            best_acc_avg = max(metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg)
+            worst_acc_avg = min(metric_logger.acc_type0.global_avg, metric_logger.acc_type1.global_avg)
+            best_auc_avg = max(metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg)
+            worst_auc_avg = min(metric_logger.auc_type0.global_avg, metric_logger.auc_type1.global_avg)
+        
+        elif(args.sens_attribute == 'age'):
+            assert args.age_type == 'binary'
+            best_acc_avg = max(metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg)
+            worst_acc_avg = min(metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg)
+            best_auc_avg = max(metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg)
+            worst_auc_avg = min(metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg)
 
-        elif args.sens_attribute == "age":
-            assert args.skin_type == "binary"
+        elif(args.sens_attribute == 'race'):
+            best_acc_avg = max(metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg)
+            worst_acc_avg = min(metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg)
+            best_auc_avg = max(metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg)
+            worst_auc_avg = min(metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg)
 
-            best_acc_avg = max(
-                metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg
-            )
-            worst_acc_avg = min(
-                metric_logger.acc_Age0.global_avg, metric_logger.acc_Age1.global_avg
-            )
-            best_auc_avg = max(
-                metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg
-            )
-            worst_auc_avg = min(
-                metric_logger.auc_Age0.global_avg, metric_logger.auc_Age1.global_avg
-            )
-
-        elif args.sens_attribute == "race":
-            best_acc_avg = max(
-                metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg
-            )
-            worst_acc_avg = min(
-                metric_logger.acc_Race0.global_avg, metric_logger.acc_Race1.global_avg
-            )
-            best_auc_avg = max(
-                metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg
-            )
-            worst_auc_avg = min(
-                metric_logger.auc_Race0.global_avg, metric_logger.auc_Race1.global_avg
-            )
-
-        elif args.sens_attribute == "age_sex":
-            best_acc_avg = max(
-                metric_logger.acc_AgeSex0.global_avg,
-                metric_logger.acc_AgeSex1.global_avg,
-            )
-            worst_acc_avg = min(
-                metric_logger.acc_AgeSex0.global_avg,
-                metric_logger.acc_AgeSex1.global_avg,
-            )
-            best_auc_avg = max(
-                metric_logger.auc_AgeSex0.global_avg,
-                metric_logger.auc_AgeSex1.global_avg,
-            )
-            worst_auc_avg = min(
-                metric_logger.auc_AgeSex0.global_avg,
-                metric_logger.auc_AgeSex1.global_avg,
-            )
+        elif(args.sens_attribute == 'age_sex'):
+            best_acc_avg = max(metric_logger.acc_AgeSex0.global_avg, metric_logger.acc_AgeSex1.global_avg, metric_logger.acc_AgeSex2.global_avg, metric_logger.acc_AgeSex3.global_avg)
+            worst_acc_avg = min(metric_logger.acc_AgeSex0.global_avg, metric_logger.acc_AgeSex1.global_avg, metric_logger.acc_AgeSex2.global_avg, metric_logger.acc_AgeSex3.global_avg)
+            best_auc_avg = max(metric_logger.auc_AgeSex0.global_avg, metric_logger.auc_AgeSex1.global_avg, metric_logger.auc_AgeSex2.global_avg, metric_logger.auc_AgeSex3.global_avg)
+            worst_auc_avg = min(metric_logger.auc_AgeSex0.global_avg, metric_logger.auc_AgeSex1.global_avg, metric_logger.auc_AgeSex2.global_avg, metric_logger.auc_AgeSex3.global_avg)
 
         acc_avg = metric_logger.acc1.global_avg
         auc_avg = metric_logger.auc.global_avg
