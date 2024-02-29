@@ -1,6 +1,6 @@
 # *FairTune*: Optimizing Parameter-Efficient Fine-Tuning for Fairness in Medical Image Analysis
 
-:star2: Accepted to ICLR 2024!
+:star2: Accepted to ICLR 2024! | [Paper Link](https://arxiv.org/abs/2310.05055)
 
 ![Fairtune](assets/fairtune_framework.png)  
 
@@ -53,6 +53,17 @@ python finetune_with_mask.py --model [model] --epochs [epochs] --batch-size [bat
 `The results would be saved in a CSV file located at FairTune/<model>/<dataset>/`
 
 `Note: It is advisable to use a weighted loss when working with Papila and OL3I datasets because of high imbalance, hence, use the --compute_cw argument.`
+
+### Citing FairTune
+
+```
+@inproceedings{dutt2023fairtune,
+  title={Fairtune: Optimizing parameter efficient fine tuning for fairness in medical image analysis},
+  author={Dutt, Raman and Bohdal, Ondrej and Tsaftaris, Sotirios A and Hospedales, Timothy},
+  booktitle={International Conference on Learning Representations},
+  year={2024}
+}
+```
 
 
 
